@@ -12,13 +12,7 @@ const prisma = new PrismaClient({
     datasourceUrl:  process.env.DATABASE_URL_POSTGRES,
 });
 
-async function createSchema() {
-    await prisma.$executeRaw`CREATE SCHEMA IF NOT EXISTS public2;`;
-    console.log("Схема public2 создана (если не существовала).");
-}
-
 async function main() {
-    await createSchema();
     await prisma.song.deleteMany();
     await prisma.album.deleteMany();
     await prisma.composerArtist.deleteMany();
