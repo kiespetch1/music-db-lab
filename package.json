@@ -3,21 +3,28 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "migrate-reset-postgres": "prisma migrate reset --schema=prisma-postgres/schema.postgres.prisma --force" ,
+    "migrate-reset-postgres": "prisma migrate reset --schema=prisma-postgres/schema.postgres.prisma --force",
     "migrate-reset-mysql": "prisma migrate reset --schema=prisma-mysql/schema.mysql.prisma --force",
     "migrate-postgres": "npx prisma migrate dev --schema=prisma-postgres/schema.postgres.prisma --name init",
     "migrate-mysql": "npx prisma migrate dev --schema=prisma-mysql/schema.mysql.prisma --name init",
+
+    "migrate-deploy-postgres": "npx prisma migrate deploy --schema=prisma-postgres/schema.postgres.prisma",
+    "migrate-deploy-mysql": "npx prisma migrate deploy --schema=prisma-mysql/schema.mysql.prisma",
+
     "generate-postgres": "npx prisma generate --schema=prisma-postgres/schema.postgres.prisma",
     "generate-mysql": "npx prisma generate --schema=prisma-mysql/schema.mysql.prisma",
+
     "create-public2": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma-postgres/create-public2-schema.ts --schema=prisma-postgres/schema.postgres.prisma",
-    "predev": "npm run migrate-reset-postgres && npm run migrate-reset-mysql && npm run migrate-postgres && npm run migrate-mysql",
-    "dev": "npm run create-public2 && npm run generate-postgres && npm run seed:postgres && npm run generate-mysql && npm run seed:mysql && next build",
+
+    "seed:postgres": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma-postgres/seed.ts --schema=prisma-postgres/schema.postgres.prisma",
+    "seed:mysql": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma-mysql/seed.ts --schema=prisma-mysql/schema.mysql.prisma",
+
     "prebuild": "npm run migrate-reset-postgres && npm run migrate-reset-mysql && npm run migrate-postgres && npm run migrate-mysql",
+    "prebuild:prod": "npm run migrate-deploy-postgres && npm run migrate-deploy-mysql && npm run create-public2",
+
     "build": "npm run create-public2 && npm run generate-postgres && npm run seed:postgres && npm run generate-mysql && npm run seed:mysql && next build",
-    "start": "npm run generate-postgres && npm run seed:postgres && npm run generate-mysql && npm run seed:mysql && next start",
-    "lint": "next lint",
-    "seed:postgres": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma-postgres/seed.ts --schema=prisma-postgres/schema.prisma",
-    "seed:mysql": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma-mysql/seed.ts --schema=prisma-mysql/schema.prisma"
+
+    "build:prod": "npm run prebuild:prod && npm run generate-postgres && npm run seed:postgres && npm run generate-mysql && npm run seed:mysql && next build"
   },
   "dependencies": {
     "@prisma/client": "^6.5.0",
