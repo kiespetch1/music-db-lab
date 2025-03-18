@@ -20,9 +20,9 @@
     "seed:postgres": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma-postgres/seed.ts --schema=prisma-postgres/schema.postgres.prisma",
     "seed:mysql": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma-mysql/seed.ts --schema=prisma-mysql/schema.mysql.prisma",
 
-    "prebuild:prod": "npm run migrate-resolve-postgres && npm run migrate-deploy-postgres && npm run migrate-deploy-mysql && npm run create-public2",
+    "prebuild:prod": "npm run migrate-resolve-postgres && npm run migrate-deploy-postgres && npm run migrate-deploy-mysql && npm run generate-postgres && npm run generate-mysql && npm run create-public2",
 
-    "build:prod": "npm run prebuild:prod && npm run generate-postgres && npm run seed:postgres && npm run generate-mysql && npm run seed:mysql && next build",
+    "build:prod": "npm run prebuild:prod && npm run seed:postgres && npm run seed:mysql && next build",
 
     "build": "npm run create-public2 && npm run generate-postgres && npm run seed:postgres && npm run generate-mysql && npm run seed:mysql && next build"
   },
