@@ -28,7 +28,7 @@ export default function StatisticsClientPage() {
 
     return (
         <div className="space-y-8">
-            <h1 className="text-3xl font-bold mb-4">Статистика по базе данных</h1>
+            <h1 className="text-3xl font-bold mb-4">Статистика по базе данных {statistics.currentDb}</h1>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Общая статистика */}
                 <div className="card bg-base-200 p-4 shadow">
