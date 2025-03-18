@@ -10,7 +10,6 @@
     "lint": "next lint",
     "seed:postgres": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma-postgres/seed.ts --schema=prisma-postgres/schema.prisma",
     "seed:mysql": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma-mysql/seed.ts --schema=prisma-mysql/schema.prisma",
-    "postinstall": "prisma generate"
   },
   "prisma": {
     "seed": "npm-run-all seed:postgres seed:mysql"
