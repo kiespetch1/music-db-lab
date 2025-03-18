@@ -1,0 +1,68 @@
+datasource db_mysql {
+  provider = "postgresql"
+  url      = env("DATABASE_URL_MYSQL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Album {
+  id    Int    @id @default(autoincrement())
+  name  String
+  songs Song[]
+
+  @@map("albums")
+}
+
+model Song {
+  id                  Int      @id @default(autoincrement())
+  title               String
+  releaseDate         DateTime
+  albumId             Int
+  composerArtistId    Int
+  productionCountryId Int
+  genreId             Int
+  concertHallId       Int
+
+  album             Album             @relation(fields: [albumId], references: [id])
+  composerArtist    ComposerArtist    @relation(fields: [composerArtistId], references: [id])
+  productionCountry ProductionCountry @relation(fields: [productionCountryId], references: [id])
+  genre             Genre             @relation(fields: [genreId], references: [id])
+  concertHall       ConcertHall       @relation(fields: [concertHallId], references: [id])
+
+  @@map("songs")
+}
+
+model ComposerArtist {
+  id    Int    @id @default(autoincrement())
+  name  String
+  songs Song[]
+
+  @@map("composers_artists")
+}
+
+model ProductionCountry {
+  id    Int    @id @default(autoincrement())
+  name  String
+  songs Song[]
+
+  @@map("production_countries")
+}
+
+model Genre {
+  id    Int    @id @default(autoincrement())
+  name  String
+  songs Song[]
+
+  @@map("genre")
+}
+
+model ConcertHall {
+  id       Int    @id @default(autoincrement())
+  name     String
+  location String
+  songs    Song[]
+
+  @@map("concert_hall")
+}
