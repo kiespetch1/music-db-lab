@@ -9,7 +9,7 @@
     "migrate-mysql": "npx prisma migrate dev --schema=prisma-mysql/schema.mysql.prisma --name init",
     "generate-postgres": "npx prisma generate --schema=prisma-postgres/schema.postgres.prisma",
     "generate-mysql": "npx prisma generate --schema=prisma-mysql/schema.mysql.prisma",
-    "create-public2": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma-postgres/create-public2-schema.ts --schema=prisma-postgres/schema.prisma",
+    "create-public2": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma-postgres/create-public2-schema.ts --schema=prisma-postgres/schema.postgres.prisma",
     "predev": "npm run migrate-reset-postgres && npm run migrate-reset-mysql && npm run migrate-postgres && npm run migrate-mysql",
     "dev": "npm run create-public2 && npm run generate-postgres && npm run seed:postgres && npm run generate-mysql && npm run seed:mysql && next build",
     "prebuild": "npm run migrate-reset-postgres && npm run migrate-reset-mysql && npm run migrate-postgres && npm run migrate-mysql",
