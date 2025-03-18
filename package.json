@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "npx prisma migrate dev --schema=prisma-postgres/schema.postgres.prisma --name init && npx prisma migrate dev --schema=prisma-mysql/schema.mysql.prisma --name init && npx prisma generate --schema=prisma-postgres/schema.postgres.prisma && npx prisma generate --schema=prisma-mysql/schema.mysql.prisma && npx prisma db seed && next dev --turbopack",
-    "prebuild": "prisma migrate reset && npx prisma migrate dev --schema=prisma-postgres/schema.postgres.prisma --name init && npx prisma migrate dev --schema=prisma-mysql/schema.mysql.prisma --name init && npx prisma generate --schema=prisma-postgres/schema.postgres.prisma && npx prisma generate --schema=prisma-mysql/schema.mysql.prisma",
+    "prebuild": "prisma migrate reset --schema=prisma-postgres/schema.postgres.prisma && prisma migrate reset --schema=prisma-mysql/schema.mysql.prisma && npx prisma migrate dev --schema=prisma-postgres/schema.postgres.prisma --name init && npx prisma migrate dev --schema=prisma-mysql/schema.mysql.prisma --name init && npx prisma generate --schema=prisma-postgres/schema.postgres.prisma && npx prisma generate --schema=prisma-mysql/schema.mysql.prisma",
     "build": "npx prisma db seed && next build",
     "start": "npx prisma migrate dev --schema=prisma-postgres/schema.postgres.prisma --name init && npx prisma migrate dev --schema=prisma-mysql/schema.mysql.prisma --name init && npx prisma generate --schema=prisma-postgres/schema.postgres.prisma && npx prisma generate --schema=prisma-mysql/schema.mysql.prisma && npx prisma db seed && next start",
     "lint": "next lint",
