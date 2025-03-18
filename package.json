@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "npx prisma migrate dev --schema=prisma-postgres/schema.postgres.prisma --name init && npx prisma migrate dev --schema=prisma-mysql/schema.mysql.prisma --name init && npx prisma generate --schema=prisma-postgres/schema.postgres.prisma && npx prisma generate --schema=prisma-mysql/schema.mysql.prisma && npx prisma db seed && next dev --turbopack",
-    "build": "next build",
-    "start": "next start",
+    "build": "npx prisma migrate dev --schema=prisma-postgres/schema.postgres.prisma --name init && npx prisma migrate dev --schema=prisma-mysql/schema.mysql.prisma --name init && npx prisma generate --schema=prisma-postgres/schema.postgres.prisma && npx prisma generate --schema=prisma-mysql/schema.mysql.prisma && npx prisma db seed && next build",
+    "start": "npx prisma migrate dev --schema=prisma-postgres/schema.postgres.prisma --name init && npx prisma migrate dev --schema=prisma-mysql/schema.mysql.prisma --name init && npx prisma generate --schema=prisma-postgres/schema.postgres.prisma && npx prisma generate --schema=prisma-mysql/schema.mysql.prisma && npx prisma db seed && next start",
     "lint": "next lint",
     "seed:postgres": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma-postgres/seed.ts --schema=prisma-postgres/schema.prisma",
     "seed:mysql": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma-mysql/seed.ts --schema=prisma-mysql/schema.prisma"
