@@ -9,7 +9,7 @@ import {
 } from '@prisma/client';
 
 const prisma = new PrismaClient({
-    datasourceUrl:  process.env.DATABASE_URL_POSTGRES,
+    datasourceUrl:  process.env.DATABASE_POSTGRES_URL,
 });
 
 async function main() {

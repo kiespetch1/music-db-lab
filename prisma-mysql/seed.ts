@@ -1,7 +1,7 @@
 import {Album, ComposerArtist, ConcertHall, Genre, PrismaClient, ProductionCountry, Song} from '@prisma/client';
 
 const prisma = new PrismaClient({
-    datasourceUrl:  process.env.MYSQL_DB_POSTGRES_URL,
+    datasourceUrl:  process.env.DATABASE_MYSQL_URL,
 });
 
 async function main() {
@@ -21,7 +21,7 @@ async function main() {
         {name: "Hybrid Theory"},
         {name: "Back in Black"},
         {name: "Золотая коллекция"},
-        {name: "Heave Metal 2"},
+        {name: "Heavy Metal 2"},
     ];
 
     const albums: Album[] = await Promise.all(
