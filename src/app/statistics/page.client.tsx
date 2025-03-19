@@ -11,7 +11,7 @@ export default function StatisticsClientPage() {
 
     useEffect(() => {
         setLoading(true);
-        fetch(`/api/statistics?db=${currentDb}`)
+        fetch(`/api/statistics?db=${currentDb}`, { cache: 'no-store' })
             .then((res) => res.json())
             .then((data) => {
                 setStatistics(data);

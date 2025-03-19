@@ -15,6 +15,7 @@
 
     "prebuild:dev": "npm run migrate-reset-postgres && npm run migrate-reset-mysql && npm run migrate-postgres && npm run migrate-mysql",
 
+    "setup:dev": "npm run migrate-reset-postgres && npm run migrate-reset-mysql && npm run generate-postgres && npm run generate-mysql && npm run create-public2 && npm run seed:postgres && npm run seed:mysql",
     "build:dev": "npm run prebuild:dev && npm run create-public2 && npm run generate-postgres && npm run seed:postgres && npm run generate-mysql && npm run seed:mysql && next build",
 
     "generate-postgres": "npx prisma generate --schema=prisma-postgres/schema.postgres.prisma",
