@@ -1,81 +1,89 @@
-import {Album, ComposerArtist, ConcertHall, Genre, PrismaClient, ProductionCountry, Song} from '@prisma/client';
+import {
+    Album,
+    ComposerArtist,
+    ConcertHall,
+    Genre,
+    PrismaClient,
+    ProductionCountry,
+    Song,
+} from '@prisma/client';
 
 const prisma = new PrismaClient({
-    datasourceUrl:  process.env.DATABASE_MYSQL_URL,
+    datasourceUrl: process.env.DATABASE_MYSQL_URL,
 });
 
 async function main() {
     await prisma.song.deleteMany();
-    await prisma.album.deleteMany();
     await prisma.composerArtist.deleteMany();
+    await prisma.album.deleteMany();
     await prisma.productionCountry.deleteMany();
     await prisma.genre.deleteMany();
     await prisma.concertHall.deleteMany();
 
-    const albumsData: Omit<Album, "id">[] = [
-        {name: "Группа крови"},
-        {name: "Медведица"},
-        {name: "Районы-кварталы"},
-        {name: "Abbey Road"},
-        {name: "A Night at the Opera"},
-        {name: "Hybrid Theory"},
-        {name: "Back in Black"},
-        {name: "Золотая коллекция"},
-        {name: "Heavy Metal 2"},
-    ];
-
-    const albums: Album[] = await Promise.all(
-        albumsData.map((album) => prisma.album.create({data: album}))
-    );
-
-    const artistsData: Omit<ComposerArtist, "id">[] = [
-        {name: "Кино"},
-        {name: "Мумий Тролль"},
-        {name: "Звери"},
-        {name: "The Beatles"},
-        {name: "Queen"},
-        {name: "Linkin Park"},
-    ];
-
-    const artists: ComposerArtist[] = await Promise.all(
-        artistsData.map((artist) => prisma.composerArtist.create({data: artist}))
-    );
-
     const countriesData: Omit<ProductionCountry, "id">[] = [
-        {name: "Россия"},
-        {name: "США"},
-        {name: "Великобритания"},
-        {name: "Германия"},
+        { name: "Россия", country_code: "RU" },
+        { name: "США", country_code: "US" },
+        { name: "Великобритания", country_code: "GB" },
+        { name: "Германия", country_code: "DE" },
     ];
 
     const countries: ProductionCountry[] = await Promise.all(
-        countriesData.map((country) => prisma.productionCountry.create({data: country}))
+        countriesData.map((country) => prisma.productionCountry.create({ data: country }))
+    );
+
+    const albumsData: Omit<Album, "id">[] = [
+        { name: "Группа крови", release_date: new Date("1986-01-01") },
+        { name: "Медведица", release_date: new Date("1990-01-01") },
+        { name: "Районы-кварталы", release_date: new Date("2000-01-01") },
+        { name: "Abbey Road", release_date: new Date("1969-09-26") },
+        { name: "A Night at the Opera", release_date: new Date("1975-11-21") },
+        { name: "Hybrid Theory", release_date: new Date("2000-10-24") },
+        { name: "Back in Black", release_date: new Date("1980-07-25") },
+        { name: "Золотая коллекция", release_date: new Date("2005-01-01") },
+        { name: "Heavy Metal 2", release_date: new Date("1999-01-01") },
+    ];
+
+    const albums: Album[] = await Promise.all(
+        albumsData.map((album) => prisma.album.create({ data: album }))
+    );
+
+    const artistsData: Omit<ComposerArtist, "id">[] = [
+        { name: "Кино", birth_date: new Date("1962-01-01"), country_id: countries[0].id },
+        { name: "Мумий Тролль", birth_date: new Date("1975-01-01"), country_id: countries[0].id },
+        { name: "Звери", birth_date: new Date("1980-01-01"), country_id: countries[0].id },
+        { name: "The Beatles", birth_date: new Date("1940-01-01"), country_id: countries[2].id },
+        { name: "Queen", birth_date: new Date("1945-01-01"), country_id: countries[2].id },
+        { name: "Linkin Park", birth_date: new Date("1971-01-01"), country_id: countries[1].id },
+    ];
+
+    const artists: ComposerArtist[] = await Promise.all(
+        artistsData.map((artist) => prisma.composerArtist.create({ data: artist }))
     );
 
     const genresData: Omit<Genre, "id">[] = [
-        {name: "Рок"},
-        {name: "Поп"},
-        {name: "Альтернатива"},
-        {name: "Электронная"},
+        { name: "Рок", description: "Классический рок" },
+        { name: "Поп", description: "Поп-музыка" },
+        { name: "Альтернатива", description: "Альтернативная музыка" },
+        { name: "Электронная", description: "Электронная музыка" },
     ];
 
-    const genres = await Promise.all(
-        genresData.map((genre) => prisma.genre.create({data: genre}))
+    const genres: Genre[] = await Promise.all(
+        genresData.map((genre) => prisma.genre.create({ data: genre }))
     );
 
     const hallsData: Omit<ConcertHall, "id">[] = [
-        { name: "Большой зал Филармонии", location: "Москва" },
-        { name: "Концертный зал им. Чайковского", location: "Санкт-Петербург" },
-        { name: "Олимпия", location: "Москва" },
-        { name: "Royal Albert Hall", location: "Лондон" },
-        { name: "Madison Square Garden", location: "Нью-Йорк" },
-        { name: "Sydney Opera House", location: "Сидней" },
-        { name: "Staples Center", location: "Лос-Анджелес" },
-        { name: "The O2 Arena", location: "Лондон" },
+        { name: "Большой зал Филармонии", location: "Москва", capacity: 1500 },
+        { name: "Концертный зал им. Чайковского", location: "Санкт-Петербург", capacity: 1200 },
+        { name: "Олимпия", location: "Москва", capacity: 2000 },
+        { name: "Royal Albert Hall", location: "Лондон", capacity: 5000 },
+        { name: "Madison Square Garden", location: "Нью-Йорк", capacity: 20000 },
+        { name: "Sydney Opera House", location: "Сидней", capacity: 5500 },
+        { name: "Staples Center", location: "Лос-Анджелес", capacity: 19000 },
+        { name: "The O2 Arena", location: "Лондон", capacity: 25000 },
     ];
 
     const halls: ConcertHall[] = await Promise.all(
-        hallsData.map((hall) => prisma.concertHall.create({data: hall}))
+        hallsData.map((hall) => prisma.concertHall.create({ data: hall }))
     );
 
     const songsData: Omit<Song, "id">[] = [
@@ -262,7 +270,7 @@ async function main() {
     ];
 
     for (const song of songsData) {
-        await prisma.song.create({data: song});
+        await prisma.song.create({ data: song });
     }
 
     console.log("Сид для MySQL завершён успешно!");

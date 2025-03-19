@@ -9,75 +9,75 @@ import {
 } from '@prisma/client';
 
 const prisma = new PrismaClient({
-    datasourceUrl:  process.env.DATABASE_POSTGRES_URL,
+    datasourceUrl: process.env.DATABASE_POSTGRES_URL,
 });
 
 async function main() {
     await prisma.song.deleteMany();
-    await prisma.album.deleteMany();
     await prisma.composerArtist.deleteMany();
+    await prisma.album.deleteMany();
     await prisma.productionCountry.deleteMany();
     await prisma.genre.deleteMany();
     await prisma.concertHall.deleteMany();
 
-    const albumsData: Omit<Album, 'id'>[] = [
-        { name: "Лунный свет" },
-        { name: "Звездный путь" },
-        { name: "Ночная тишина" },
-        { name: "Rock Legends" },
-        { name: "Pop Sensation" },
-        { name: "Electro Vibes" },
-        { name: "Golden Hits" },
-        { name: "Современная классика" },
-    ];
-    const albums: Album[] = await Promise.all(
-        albumsData.map((album) => prisma.album.create({ data: album }))
-    );
-
-    const artistsData: Omit<ComposerArtist, 'id'>[] = [
-        { name: "Алиса" },
-        { name: "ДДТ" },
-        { name: "Сплин" },
-        { name: "Coldplay" },
-        { name: "Imagine Dragons" },
-        { name: "Maroon 5" },
-    ];
-    const artists: ComposerArtist[] = await Promise.all(
-        artistsData.map((artist) => prisma.composerArtist.create({ data: artist }))
-    );
-
     const countriesData: Omit<ProductionCountry, 'id'>[] = [
-        { name: "Россия" },
-        { name: "США" },
-        { name: "Канада" },
-        { name: "Великобритания" },
+        { name: "Россия", country_code: "RU" },
+        { name: "США", country_code: "US" },
+        { name: "Канада", country_code: "CA" },
+        { name: "Великобритания", country_code: "GB" },
     ];
     const countries: ProductionCountry[] = await Promise.all(
         countriesData.map((country) => prisma.productionCountry.create({ data: country }))
     );
 
+    const albumsData: Omit<Album, 'id'>[] = [
+        { name: "Лунный свет", release_date: new Date("1990-01-01") },
+        { name: "Звездный путь", release_date: new Date("1992-01-01") },
+        { name: "Ночная тишина", release_date: new Date("1995-01-01") },
+        { name: "Rock Legends", release_date: new Date("1985-09-01") },
+        { name: "Pop Sensation", release_date: new Date("2000-06-01") },
+        { name: "Electro Vibes", release_date: new Date("2008-04-01") },
+        { name: "Golden Hits", release_date: new Date("2010-11-01") },
+        { name: "Современная классика", release_date: new Date("2015-01-01") },
+    ];
+    const albums: Album[] = await Promise.all(
+        albumsData.map((album) => prisma.album.create({ data: album }))
+    );
+
     const genresData: Omit<Genre, 'id'>[] = [
-        { name: "Рок" },
-        { name: "Поп" },
-        { name: "Инди" },
-        { name: "Электроника" },
+        { name: "Рок", description: "Классический рок" },
+        { name: "Поп", description: "Поп-музыка" },
+        { name: "Инди", description: "Независимая музыка" },
+        { name: "Электроника", description: "Электронная музыка" },
     ];
     const genres: Genre[] = await Promise.all(
         genresData.map((genre) => prisma.genre.create({ data: genre }))
     );
 
     const hallsData: Omit<ConcertHall, 'id'>[] = [
-        { name: "Крокус Сити Холл", location: "Москва" },
-        { name: "Олимпийский", location: "Санкт-Петербург" },
-        { name: "Concert Hall X", location: "Новосибирск" },
-        { name: "The O2", location: "Лондон" },
-        { name: "Hollywood Bowl", location: "Лос-Анджелес" },
-        { name: "Moscow International House of Music", location: "Москва" },
-        { name: "Royal Festival Hall", location: "Лондон" },
-        { name: "Berlin Philharmonie", location: "Берлин" },
+        { name: "Крокус Сити Холл", location: "Москва", capacity: 5000 },
+        { name: "Олимпийский", location: "Санкт-Петербург", capacity: 4000 },
+        { name: "Concert Hall X", location: "Новосибирск", capacity: 3000 },
+        { name: "The O2", location: "Лондон", capacity: 25000 },
+        { name: "Hollywood Bowl", location: "Лос-Анджелес", capacity: 18000 },
+        { name: "Moscow International House of Music", location: "Москва", capacity: 3500 },
+        { name: "Royal Festival Hall", location: "Лондон", capacity: 5000 },
+        { name: "Berlin Philharmonie", location: "Берлин", capacity: 2000 },
     ];
     const halls: ConcertHall[] = await Promise.all(
         hallsData.map((hall) => prisma.concertHall.create({ data: hall }))
+    );
+
+    const artistsData: Omit<ComposerArtist, 'id'>[] = [
+        { name: "Алиса", birth_date: new Date("1975-05-10"), country_id: countries[0].id },
+        { name: "ДДТ", birth_date: new Date("1968-03-22"), country_id: countries[0].id },
+        { name: "Сплин", birth_date: new Date("1974-10-01"), country_id: countries[0].id },
+        { name: "Coldplay", birth_date: new Date("1977-01-01"), country_id: countries[3].id },
+        { name: "Imagine Dragons", birth_date: new Date("1984-08-05"), country_id: countries[1].id },
+        { name: "Maroon 5", birth_date: new Date("1977-01-01"), country_id: countries[1].id },
+    ];
+    const artists: ComposerArtist[] = await Promise.all(
+        artistsData.map((artist) => prisma.composerArtist.create({ data: artist }))
     );
 
     const songsData: Omit<Song, 'id'>[] = [
