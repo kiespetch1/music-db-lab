@@ -5,7 +5,7 @@ const postgresClient = new PrismaClient({
 });
 
 const mysqlClient = new PrismaClient({
-    datasourceUrl:  process.env.DATABASE_URL_MYSQL,
+    datasourceUrl:  process.env.MYSQL_DB_POSTGRES_URL,
 });
 
 //

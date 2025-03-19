@@ -1,6 +1,6 @@
 datasource db_mysql {
   provider = "postgresql"
-  url      = env("DATABASE_URL_MYSQL")
+  url      = env("MYSQL_DB_POSTGRES_URL")
 }
 
 generator client {

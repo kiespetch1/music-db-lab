@@ -1,7 +1,7 @@
 import {Album, ComposerArtist, ConcertHall, Genre, PrismaClient, ProductionCountry, Song} from '@prisma/client';
 
 const prisma = new PrismaClient({
-    datasourceUrl:  process.env.DATABASE_URL_MYSQL,
+    datasourceUrl:  process.env.MYSQL_DB_POSTGRES_URL,
 });
 
 async function main() {
