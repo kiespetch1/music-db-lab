@@ -6,6 +6,7 @@ import {SongGenreStat, Statistics} from "~/types/DTOs";
 
 export default function StatisticsClientPage() {
     const { currentDb } = useDB();
+    console.log("БД в клиенте: " + currentDb);
     const [statistics, setStatistics] = useState<Statistics | null>(null);
     const [loading, setLoading] = useState(true);
 

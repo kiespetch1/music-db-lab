@@ -5,6 +5,7 @@ import {Statistics} from "~/types/DTOs";
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const db = searchParams.get("db") === "mysql" ? "mysql" : "postgres";
+    console.log("БД в апи: "+ db);
     const prisma = getPrismaClient(db);
 
     const [songsCount, albumsCount, composersCount, countriesCount, genresCount, concertHallsCount] =
