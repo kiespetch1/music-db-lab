@@ -7,6 +7,8 @@ export async function GET(request: Request) {
     const db = searchParams.get("db") === "mysql" ? "mysql" : "postgres";
     console.log("БД в апи: "+ db);
     const prisma = getPrismaClient(db);
+    console.log(process.env);
+
 
     const [songsCount, albumsCount, composersCount, countriesCount, genresCount, concertHallsCount] =
         await Promise.all([
