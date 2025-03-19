@@ -9,7 +9,7 @@ export default function HomePage() {
           Здесь вы найдёте информацию о песнях, альбомах, композиторах, исполнителях, странах производства, жанрах и концертных площадках.
         </p>
         <p>
-          Сайт создан с использованием современных технологий: Next.js, TypeScript, TailwindCSS, daisyUI, Prisma и PostgreSQL.
+          Сайт создан с использованием современных технологий: Next.js, TypeScript, TailwindCSS, daisyUI, Prisma, MySQL и PostgreSQL.
           <br />
           © 2025 Сайт сделан студенткой группы ИВТ-Б22 Гордионок Натальей
         </p>
