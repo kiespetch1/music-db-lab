@@ -42,184 +42,6 @@ interface ReferenceAddModalProps {
     onCreated: () => void;
 }
 
-const ReferenceAddModal: React.FC<ReferenceAddModalProps> = ({
-                                                                 type,
-                                                                 db,
-                                                                 onClose,
-                                                                 onCreated,
-                                                             }) => {
-    const [formData, setFormData] = useState({});
-    const [error, setError] = useState<string | null>(null);
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev: Record<string, unknown>) => ({ ...prev, [name]: value }));
-    };
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setError(null);
-        try {
-            const response = await fetch(`/api/add?db=${db}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ entityType: type, ...formData }),
-            });
-            if (!response.ok) {
-                const errData = await response.json();
-                setError(errData.error || "Ошибка при добавлении записи");
-            } else {
-                onCreated();
-                onClose();
-            }
-        } catch (err) {
-            if (err instanceof Error) {
-                setError(err.message || "Ошибка при отправке запроса");
-            }
-        }
-    };
-
-    return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-4 rounded w-80">
-                <h2 className="text-lg font-bold mb-2">
-                    Добавить новый{" "}
-                    {type === "concertHall"
-                        ? "концертный зал"
-                        : type === "composerArtist"
-                            ? "композитора/исполнителя"
-                            : type === "productionCountry"
-                                ? "страну производства"
-                                : type === "genre"
-                                    ? "жанр"
-                                    : "альбом"}
-                </h2>
-                <form onSubmit={handleSubmit} className="space-y-2">
-                    <div>
-                        <label className="block font-medium">Название:</label>
-                        <input
-                            type="text"
-                            name="name"
-                            onChange={handleChange}
-                            className="border rounded p-1 w-full"
-                            required
-                        />
-                    </div>
-                    {type === "album" && (
-                        <div>
-                            <label className="block font-medium">Дата выпуска:</label>
-                            <input
-                                type="date"
-                                name="release_date"
-                                onChange={handleChange}
-                                className="border rounded p-1 w-full"
-                                required
-                            />
-                        </div>
-                    )}
-                    {type === "composerArtist" && (
-                        <>
-                            <div>
-                                <label className="block font-medium">Дата рождения:</label>
-                                <input
-                                    type="date"
-                                    name="birth_date"
-                                    onChange={handleChange}
-                                    className="border rounded p-1 w-full"
-                                    required
-                                />
-                            </div>
-                            <div className="flex items-center">
-                                <div className="flex-1">
-                                    <label className="block font-medium">Страна:</label>
-                                    <select
-                                        id="country_id"
-                                        name="country_id"
-                                        onChange={handleChange}
-                                        className="border rounded p-1 w-full"
-                                        required
-                                    >
-                                        <option value="">Выберите страну</option>
-                                        {productionCountryOptions.map((option) => (
-                                            <option key={option.id} value={option.id}>
-                                                {option.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <button
-                                    type="button"
-                                    onClick={() => setActiveModal("productionCountry")}
-                                    className="mt-6 ml-2 bg-green-500 text-white px-2 py-1 rounded"
-                                >
-                                    Добавить
-                                </button>
-                            </div>
-                        </>
-                    )}
-                    {type === "productionCountry" && (
-                        <>
-                            <div>
-                                <label className="block font-medium">Код страны:</label>
-                                <input
-                                    type="text"
-                                    name="country_code"
-                                    onChange={handleChange}
-                                    className="border rounded p-1 w-full"
-                                    required
-                                />
-                            </div>
-                        </>
-                    )}
-                    {type === "genre" && (
-                        <>
-                            <div>
-                                <label className="block font-medium">Описание жанра:</label>
-                                <input
-                                    type="text"
-                                    name="description"
-                                    onChange={handleChange}
-                                    className="border rounded p-1 w-full"
-                                    required
-                                />
-                            </div>
-                        </>
-                    )}
-                    {type === "concertHall" && (
-                        <>
-                            <div>
-                                <label className="block font-medium">Вместимость:</label>
-                                <input
-                                    type="number"
-                                    name="capacity"
-                                    onChange={handleChange}
-                                    className="border rounded p-1 w-full"
-                                    required
-                                />
-                            </div>
-                        </>
-                    )}
-                    {error && <div className="text-red-500">{error}</div>}
-                    <div className="flex justify-end space-x-2">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="px-2 py-1 border rounded"
-                        >
-                            Отмена
-                        </button>
-                        <button
-                            type="submit"
-                            className="px-2 py-1 bg-blue-500 text-white rounded"
-                        >
-                            Создать
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
-};
 
 const CreateMusicEntityPage: React.FC = () => {
     const [entityType, setEntityType] = useState<string>("album");
@@ -375,6 +197,185 @@ const CreateMusicEntityPage: React.FC = () => {
             default:
                 return "";
         }
+    };
+
+    const ReferenceAddModal: React.FC<ReferenceAddModalProps> = ({
+                                                                     type,
+                                                                     db,
+                                                                     onClose,
+                                                                     onCreated,
+                                                                 }) => {
+        const [formData, setFormData] = useState({});
+        const [error, setError] = useState<string | null>(null);
+
+        const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+            const { name, value } = e.target;
+            setFormData((prev: Record<string, unknown>) => ({ ...prev, [name]: value }));
+        };
+
+        const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+            e.preventDefault();
+            setError(null);
+            try {
+                const response = await fetch(`/api/add?db=${db}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ entityType: type, ...formData }),
+                });
+                if (!response.ok) {
+                    const errData = await response.json();
+                    setError(errData.error || "Ошибка при добавлении записи");
+                } else {
+                    onCreated();
+                    onClose();
+                }
+            } catch (err) {
+                if (err instanceof Error) {
+                    setError(err.message || "Ошибка при отправке запроса");
+                }
+            }
+        };
+
+        return (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                <div className="bg-white p-4 rounded w-80">
+                    <h2 className="text-lg font-bold mb-2">
+                        Добавить новый{" "}
+                        {type === "concertHall"
+                            ? "концертный зал"
+                            : type === "composerArtist"
+                                ? "композитора/исполнителя"
+                                : type === "productionCountry"
+                                    ? "страну производства"
+                                    : type === "genre"
+                                        ? "жанр"
+                                        : "альбом"}
+                    </h2>
+                    <form onSubmit={handleSubmit} className="space-y-2">
+                        <div>
+                            <label className="block font-medium">Название:</label>
+                            <input
+                                type="text"
+                                name="name"
+                                onChange={handleChange}
+                                className="border rounded p-1 w-full"
+                                required
+                            />
+                        </div>
+                        {type === "album" && (
+                            <div>
+                                <label className="block font-medium">Дата выпуска:</label>
+                                <input
+                                    type="date"
+                                    name="release_date"
+                                    onChange={handleChange}
+                                    className="border rounded p-1 w-full"
+                                    required
+                                />
+                            </div>
+                        )}
+                        {type === "composerArtist" && (
+                            <>
+                                <div>
+                                    <label className="block font-medium">Дата рождения:</label>
+                                    <input
+                                        type="date"
+                                        name="birth_date"
+                                        onChange={handleChange}
+                                        className="border rounded p-1 w-full"
+                                        required
+                                    />
+                                </div>
+                                <div className="flex items-center">
+                                    <div className="flex-1">
+                                        <label className="block font-medium">Страна:</label>
+                                        <select
+                                            id="country_id"
+                                            name="country_id"
+                                            onChange={handleChange}
+                                            className="border rounded p-1 w-full"
+                                            required
+                                        >
+                                            <option value="">Выберите страну</option>
+                                            {productionCountryOptions.map((option) => (
+                                                <option key={option.id} value={option.id}>
+                                                    {option.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setActiveModal("productionCountry")}
+                                        className="mt-6 ml-2 bg-green-500 text-white px-2 py-1 rounded"
+                                    >
+                                        Добавить
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                        {type === "productionCountry" && (
+                            <>
+                                <div>
+                                    <label className="block font-medium">Код страны:</label>
+                                    <input
+                                        type="text"
+                                        name="country_code"
+                                        onChange={handleChange}
+                                        className="border rounded p-1 w-full"
+                                        required
+                                    />
+                                </div>
+                            </>
+                        )}
+                        {type === "genre" && (
+                            <>
+                                <div>
+                                    <label className="block font-medium">Описание жанра:</label>
+                                    <input
+                                        type="text"
+                                        name="description"
+                                        onChange={handleChange}
+                                        className="border rounded p-1 w-full"
+                                        required
+                                    />
+                                </div>
+                            </>
+                        )}
+                        {type === "concertHall" && (
+                            <>
+                                <div>
+                                    <label className="block font-medium">Вместимость:</label>
+                                    <input
+                                        type="number"
+                                        name="capacity"
+                                        onChange={handleChange}
+                                        className="border rounded p-1 w-full"
+                                        required
+                                    />
+                                </div>
+                            </>
+                        )}
+                        {error && <div className="text-red-500">{error}</div>}
+                        <div className="flex justify-end space-x-2">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="px-2 py-1 border rounded"
+                            >
+                                Отмена
+                            </button>
+                            <button
+                                type="submit"
+                                className="px-2 py-1 bg-blue-500 text-white rounded"
+                            >
+                                Создать
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        );
     };
 
     return (
@@ -792,6 +793,7 @@ const CreateMusicEntityPage: React.FC = () => {
             )}
         </div>
     );
+
 };
 
 export default CreateMusicEntityPage;
