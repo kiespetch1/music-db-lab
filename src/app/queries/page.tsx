@@ -41,9 +41,10 @@ export default function QueriesPage() {
     const [genreResults, setGenreResults] = useState<SongResult[]>([]);
     const [genreOnlyOptions, setGenreOnlyOptions] = useState<Genre[]>([]);
 
-    // Поиск по году выпуска (текстовый ввод)
-    const [yearQuery, setYearQuery] = useState<string>("");
-    const [yearResults, setYearResults] = useState<SongResult[]>([]);
+    // Поиск по году выпуска (только год – выпадающий список)
+    const [yearOnlyQuery, setYearOnlyQuery] = useState<string>("");
+    const [yearOnlyResults, setYearOnlyResults] = useState<SongResult[]>([]);
+    const [yearOnlyOptions, setYearOnlyOptions] = useState<number[]>([]);
 
     // Поиск по исполнителю и году (оба критерия – выпадающие списки)
     const [composerYearQuery, setComposerYearQuery] = useState<ComposerYearQuery>({
@@ -62,6 +63,16 @@ export default function QueriesPage() {
     const [composerGenreResults, setComposerGenreResults] = useState<SongResult[]>([]);
     const [composerGenreComposerOptions, setComposerGenreComposerOptions] = useState<ComposerArtist[]>([]);
     const [composerGenreGenreOptions, setComposerGenreGenreOptions] = useState<Genre[]>([]);
+
+    // Инициализация опций для запроса по году (без фильтрации)
+    useEffect(() => {
+        async function fetchYearOnlyOptions() {
+            const res = await fetch(`/api/queries/years?db=${currentDb}`);
+            const data: number[] = await res.json();
+            setYearOnlyOptions(data);
+        }
+        fetchYearOnlyOptions();
+    }, [currentDb]);
 
     // Инициализация опций для поиска по исполнителю и году
     useEffect(() => {
@@ -121,14 +132,14 @@ export default function QueriesPage() {
         setGenreResults(data);
     };
 
-    // Обработчик поиска по году (текстовый ввод)
-    const handleYearSearch = async (e: React.FormEvent<HTMLFormElement>) => {
+    // Обработчик поиска по году (только год – выпадающий список)
+    const handleYearOnlySearch = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const res = await fetch(
-            `/api/queries/songs?db=${currentDb}&year=${encodeURIComponent(yearQuery)}`
+            `/api/queries/songs?db=${currentDb}&year=${encodeURIComponent(yearOnlyQuery)}`
         );
         const data: SongResult[] = await res.json();
-        setYearResults(data);
+        setYearOnlyResults(data);
     };
 
     // Обработчики для поиска по исполнителю и году
@@ -245,58 +256,6 @@ export default function QueriesPage() {
         <div className="container mx-auto p-4 space-y-4">
             <h1 className="text-3xl font-bold">Запросы к базе данных</h1>
 
-            {/* Accordion: Поиск песен по названию */}
-            <div className="collapse collapse-arrow bg-base-100 border border-base-300">
-                <input type="radio" name="my-accordion" defaultChecked />
-                <div className="collapse-title font-semibold">Поиск песен по названию</div>
-                <div className="collapse-content">
-                    <form onSubmit={handleTitleSearch} className="space-y-2">
-                        <input
-                            type="text"
-                            placeholder="Введите название песни"
-                            value={titleQuery}
-                            onChange={(e) => setTitleQuery(e.target.value)}
-                            className="input input-bordered w-full"
-                        />
-                        <button type="submit" className="btn">Найти</button>
-                    </form>
-                    <div className="mt-2">
-                        {titleResults.length > 0 ? (
-                            <table className="table w-full">
-                                <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Название</th>
-                                    <th>Дата релиза</th>
-                                    <th>Альбом</th>
-                                    <th>Исполнитель</th>
-                                    <th>Жанр</th>
-                                    <th>Страна</th>
-                                    <th>Концертный зал</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {titleResults.map((song) => (
-                                    <tr key={song.id}>
-                                        <td>{song.id}</td>
-                                        <td>{song.title}</td>
-                                        <td>{new Date(song.releaseDate).toLocaleDateString("ru-RU")}</td>
-                                        <td>{song.album?.name}</td>
-                                        <td>{song.composerArtist?.name}</td>
-                                        <td>{song.genre?.name}</td>
-                                        <td>{song.composerArtist?.country?.name || "-"}</td>
-                                        <td>{song.concertHall?.name}</td>
-                                    </tr>
-                                ))}
-                                </tbody>
-                            </table>
-                        ) : (
-                            <p>Нет результатов</p>
-                        )}
-                    </div>
-                </div>
-            </div>
-
             {/* Accordion: Поиск песен по жанру */}
             <div className="collapse collapse-arrow bg-base-100 border border-base-300">
                 <input type="radio" name="my-accordion" />
@@ -354,23 +313,28 @@ export default function QueriesPage() {
                 </div>
             </div>
 
-            {/* Accordion: Поиск песен по году выпуска (текстовый ввод) */}
+            {/* Accordion: Поиск песен по году выпуска (выпадающий список) */}
             <div className="collapse collapse-arrow bg-base-100 border border-base-300">
                 <input type="radio" name="my-accordion" />
                 <div className="collapse-title font-semibold">Поиск песен по году выпуска</div>
                 <div className="collapse-content">
-                    <form onSubmit={handleYearSearch} className="space-y-2">
-                        <input
-                            type="number"
-                            placeholder="Введите год"
-                            value={yearQuery}
-                            onChange={(e) => setYearQuery(e.target.value)}
-                            className="input input-bordered w-full"
-                        />
+                    <form onSubmit={handleYearOnlySearch} className="space-y-2">
+                        <select
+                            value={yearOnlyQuery}
+                            onChange={(e) => setYearOnlyQuery(e.target.value)}
+                            className="select select-bordered w-full"
+                        >
+                            <option value="">Выберите год</option>
+                            {yearOnlyOptions.map((y) => (
+                                <option key={y} value={y}>
+                                    {y}
+                                </option>
+                            ))}
+                        </select>
                         <button type="submit" className="btn">Найти</button>
                     </form>
                     <div className="mt-2">
-                        {yearResults.length > 0 ? (
+                        {yearOnlyResults.length > 0 ? (
                             <table className="table w-full">
                                 <thead>
                                 <tr>
@@ -385,7 +349,7 @@ export default function QueriesPage() {
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {yearResults.map((song) => (
+                                {yearOnlyResults.map((song) => (
                                     <tr key={song.id}>
                                         <td>{song.id}</td>
                                         <td>{song.title}</td>
@@ -524,6 +488,58 @@ export default function QueriesPage() {
                                 </thead>
                                 <tbody>
                                 {composerGenreResults.map((song) => (
+                                    <tr key={song.id}>
+                                        <td>{song.id}</td>
+                                        <td>{song.title}</td>
+                                        <td>{new Date(song.releaseDate).toLocaleDateString("ru-RU")}</td>
+                                        <td>{song.album?.name}</td>
+                                        <td>{song.composerArtist?.name}</td>
+                                        <td>{song.genre?.name}</td>
+                                        <td>{song.composerArtist?.country?.name || "-"}</td>
+                                        <td>{song.concertHall?.name}</td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        ) : (
+                            <p>Нет результатов</p>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Accordion: Поиск песен по названию */}
+            <div className="collapse collapse-arrow bg-base-100 border border-base-300">
+                <input type="radio" name="my-accordion" defaultChecked />
+                <div className="collapse-title font-semibold">Поиск песен по названию</div>
+                <div className="collapse-content">
+                    <form onSubmit={handleTitleSearch} className="space-y-2">
+                        <input
+                            type="text"
+                            placeholder="Введите название песни"
+                            value={titleQuery}
+                            onChange={(e) => setTitleQuery(e.target.value)}
+                            className="input input-bordered w-full"
+                        />
+                        <button type="submit" className="btn">Найти</button>
+                    </form>
+                    <div className="mt-2">
+                        {titleResults.length > 0 ? (
+                            <table className="table w-full">
+                                <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Название</th>
+                                    <th>Дата релиза</th>
+                                    <th>Альбом</th>
+                                    <th>Исполнитель</th>
+                                    <th>Жанр</th>
+                                    <th>Страна</th>
+                                    <th>Концертный зал</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {titleResults.map((song) => (
                                     <tr key={song.id}>
                                         <td>{song.id}</td>
                                         <td>{song.title}</td>

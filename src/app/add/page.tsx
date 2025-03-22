@@ -1,8 +1,6 @@
 "use client";
-// @ts-nocheck
-/* eslint-disable */
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, {useState, useEffect, useCallback, ReactNode} from "react";
 import { useDB } from "~/lib/DBContext";
 import { z } from "zod";
 import {
@@ -14,7 +12,15 @@ import {
     concertHallSchema,
 } from "~/validationSchemas";
 
-const schemas: Record<string, z.ZodSchema<any>> = {
+type ReferenceType =
+    | "album"
+    | "song"
+    | "composerArtist"
+    | "productionCountry"
+    | "genre"
+    | "concertHall";
+
+const schemas: Record<ReferenceType, z.ZodSchema<unknown>> = {
     album: albumSchema,
     song: songSchema,
     genre: genreSchema,
@@ -23,30 +29,23 @@ const schemas: Record<string, z.ZodSchema<any>> = {
     concertHall: concertHallSchema,
 };
 
-type ReferenceType =
-    | "album"
-    | "composerArtist"
-    | "productionCountry"
-    | "genre"
-    | "concertHall";
-
 interface Reference {
     id: number;
     name: string;
 }
 
 interface ReferenceAddModalProps {
-    type: ReferenceType;
+    type: Exclude<ReferenceType, "song">;
     db: string;
     onClose: () => void;
     onCreated: () => void;
 }
 
-
 const CreateMusicEntityPage: React.FC = () => {
-    const [entityType, setEntityType] = useState<string>("album");
-    const [formData, setFormData] = useState<any>({});
-    const [result, setResult] = useState<any>(null);
+    // Данные формы как объект с ключами-строками
+    const [formData, setFormData] = useState<Record<string, string>>({});
+    const [entityType, setEntityType] = useState<ReferenceType>("song");
+    const [result, setResult] = useState<ReactNode>(null);
     const [error, setError] = useState<string | null>(null);
     const { currentDb } = useDB();
 
@@ -56,31 +55,32 @@ const CreateMusicEntityPage: React.FC = () => {
     const [genreOptions, setGenreOptions] = useState<Reference[]>([]);
     const [concertHallOptions, setConcertHallOptions] = useState<Reference[]>([]);
 
-    const [activeModal, setActiveModal] = useState<ReferenceType | null>(null);
+    const [activeModal, setActiveModal] = useState<Exclude<ReferenceType, "song"> | null>(null);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
         const { name, value } = e.target;
-        setFormData((prev: any) => ({ ...prev, [name]: value }));
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleEntityTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setEntityType(e.target.value);
+    const handleEntityTypeChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
+        setEntityType(e.target.value as ReferenceType);
         setFormData({});
         setResult(null);
         setError(null);
     };
 
     const fetchOptions = useCallback(
-        async (type: ReferenceType, setFunc: (arr: Reference[]) => void) => {
+        async (type: ReferenceType, setFunc: (arr: Reference[]) => void): Promise<void> => {
             try {
                 const response = await fetch(`/api/references?type=${type}&db=${currentDb}`);
                 if (response.ok) {
-                    const data = await response.json();
+                    const data: Reference[] = await response.json();
                     setFunc(data);
                 } else {
                     setFunc([]);
                 }
             } catch (err) {
+                if (err instanceof Error)
                 setFunc([]);
             }
         },
@@ -98,8 +98,10 @@ const CreateMusicEntityPage: React.FC = () => {
     useEffect(() => {
         if (entityType === "song") {
             if (!albumOptions.length) fetchOptions("album", setAlbumOptions);
-            if (!composerArtistOptions.length) fetchOptions("composerArtist", setComposerArtistOptions);
-            if (!productionCountryOptions.length) fetchOptions("productionCountry", setProductionCountryOptions);
+            if (!composerArtistOptions.length)
+                fetchOptions("composerArtist", setComposerArtistOptions);
+            if (!productionCountryOptions.length)
+                fetchOptions("productionCountry", setProductionCountryOptions);
             if (!genreOptions.length) fetchOptions("genre", setGenreOptions);
             if (!concertHallOptions.length) fetchOptions("concertHall", setConcertHallOptions);
         }
@@ -117,7 +119,12 @@ const CreateMusicEntityPage: React.FC = () => {
         fetchOptions,
     ]);
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    // Сброс данных формы (после успешного создания записи)
+    const resetFormData = (): void => {
+        setFormData({});
+    };
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
         e.preventDefault();
         setError(null);
         setResult(null);
@@ -144,17 +151,19 @@ const CreateMusicEntityPage: React.FC = () => {
             } else {
                 const data = await response.json();
                 setResult(data);
+                resetFormData(); // Очистка формы после успешного создания
             }
         } catch (err) {
-            if (err instanceof Error) setError(err.message || "Ошибка при отправке запроса");
+            if (err instanceof Error)
+                setError(err.message || "Ошибка при отправке запроса");
         }
     };
 
-    const handleModalClose = () => {
+    const handleModalClose = (): void => {
         setActiveModal(null);
     };
 
-    const handleModalCreated = () => {
+    const handleModalCreated = (): void => {
         if (activeModal) {
             fetchOptions(activeModal, (options) => {
                 switch (activeModal) {
@@ -180,7 +189,7 @@ const CreateMusicEntityPage: React.FC = () => {
         }
     };
 
-    const getRussianEntityName = (name: string): string => {
+    const getRussianEntityName = (name: ReferenceType): string => {
         switch (name) {
             case "album":
                 return "Альбом";
@@ -205,33 +214,38 @@ const CreateMusicEntityPage: React.FC = () => {
                                                                      onClose,
                                                                      onCreated,
                                                                  }) => {
-        const [formData, setFormData] = useState({});
-        const [error, setError] = useState<string | null>(null);
+        const [modalFormData, setModalFormData] = useState<Record<string, string>>({});
+        const [modalError, setModalError] = useState<string | null>(null);
 
-        const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const handleModalChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
             const { name, value } = e.target;
-            setFormData((prev: Record<string, unknown>) => ({ ...prev, [name]: value }));
+            setModalFormData((prev) => ({ ...prev, [name]: value }));
         };
 
-        const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        const resetModalFormData = (): void => {
+            setModalFormData({});
+        };
+
+        const handleModalSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
             e.preventDefault();
-            setError(null);
+            setModalError(null);
             try {
                 const response = await fetch(`/api/add?db=${db}`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ entityType: type, ...formData }),
+                    body: JSON.stringify({ entityType: type, ...modalFormData }),
                 });
                 if (!response.ok) {
                     const errData = await response.json();
-                    setError(errData.error || "Ошибка при добавлении записи");
+                    setModalError(errData.error || "Ошибка при добавлении записи");
                 } else {
                     onCreated();
                     onClose();
+                    resetModalFormData(); // Очистка формы модального окна
                 }
             } catch (err) {
                 if (err instanceof Error) {
-                    setError(err.message || "Ошибка при отправке запроса");
+                    setModalError(err.message || "Ошибка при отправке запроса");
                 }
             }
         };
@@ -251,13 +265,14 @@ const CreateMusicEntityPage: React.FC = () => {
                                         ? "жанр"
                                         : "альбом"}
                     </h2>
-                    <form onSubmit={handleSubmit} className="space-y-2">
+                    <form onSubmit={handleModalSubmit} className="space-y-2">
                         <div>
                             <label className="block font-medium">Название:</label>
                             <input
                                 type="text"
                                 name="name"
-                                onChange={handleChange}
+                                value={modalFormData.name || ""}
+                                onChange={handleModalChange}
                                 className="border rounded p-1 w-full"
                                 required
                             />
@@ -268,7 +283,8 @@ const CreateMusicEntityPage: React.FC = () => {
                                 <input
                                     type="date"
                                     name="release_date"
-                                    onChange={handleChange}
+                                    value={modalFormData.release_date || ""}
+                                    onChange={handleModalChange}
                                     className="border rounded p-1 w-full"
                                     required
                                 />
@@ -281,7 +297,8 @@ const CreateMusicEntityPage: React.FC = () => {
                                     <input
                                         type="date"
                                         name="birth_date"
-                                        onChange={handleChange}
+                                        value={modalFormData.birth_date || ""}
+                                        onChange={handleModalChange}
                                         className="border rounded p-1 w-full"
                                         required
                                     />
@@ -292,7 +309,8 @@ const CreateMusicEntityPage: React.FC = () => {
                                         <select
                                             id="country_id"
                                             name="country_id"
-                                            onChange={handleChange}
+                                            value={modalFormData.country_id || ""}
+                                            onChange={handleModalChange}
                                             className="border rounded p-1 w-full"
                                             required
                                         >
@@ -321,7 +339,8 @@ const CreateMusicEntityPage: React.FC = () => {
                                     <input
                                         type="text"
                                         name="country_code"
-                                        onChange={handleChange}
+                                        value={modalFormData.country_code || ""}
+                                        onChange={handleModalChange}
                                         className="border rounded p-1 w-full"
                                         required
                                     />
@@ -335,28 +354,15 @@ const CreateMusicEntityPage: React.FC = () => {
                                     <input
                                         type="text"
                                         name="description"
-                                        onChange={handleChange}
+                                        value={modalFormData.description || ""}
+                                        onChange={handleModalChange}
                                         className="border rounded p-1 w-full"
                                         required
                                     />
                                 </div>
                             </>
                         )}
-                        {type === "concertHall" && (
-                            <>
-                                <div>
-                                    <label className="block font-medium">Вместимость:</label>
-                                    <input
-                                        type="number"
-                                        name="capacity"
-                                        onChange={handleChange}
-                                        className="border rounded p-1 w-full"
-                                        required
-                                    />
-                                </div>
-                            </>
-                        )}
-                        {error && <div className="text-red-500">{error}</div>}
+                        {modalError && <div className="text-red-500">{modalError}</div>}
                         <div className="flex justify-end space-x-2">
                             <button
                                 type="button"
@@ -394,8 +400,8 @@ const CreateMusicEntityPage: React.FC = () => {
                         onChange={handleEntityTypeChange}
                         className="border rounded p-2"
                     >
-                        <option value="album">Альбом</option>
                         <option value="song">Песня</option>
+                        <option value="album">Альбом</option>
                         <option value="composerArtist">Композитор/Исполнитель</option>
                         <option value="productionCountry">Страна производства</option>
                         <option value="genre">Жанр</option>
@@ -414,6 +420,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                 type="text"
                                 id="name"
                                 name="name"
+                                value={formData.name || ""}
                                 onChange={handleChange}
                                 className="border rounded p-2 w-full"
                                 required
@@ -427,6 +434,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                 type="date"
                                 id="release_date"
                                 name="release_date"
+                                value={formData.release_date || ""}
                                 onChange={handleChange}
                                 className="border rounded p-2 w-full"
                                 required
@@ -446,6 +454,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                 type="text"
                                 id="title"
                                 name="title"
+                                value={formData.title || ""}
                                 onChange={handleChange}
                                 className="border rounded p-2 w-full"
                                 required
@@ -459,6 +468,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                 type="date"
                                 id="releaseDate"
                                 name="releaseDate"
+                                value={formData.releaseDate || ""}
                                 onChange={handleChange}
                                 className="border rounded p-2 w-full"
                                 required
@@ -472,6 +482,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                 <select
                                     id="albumId"
                                     name="albumId"
+                                    value={formData.albumId || ""}
                                     onChange={handleChange}
                                     className="border rounded p-2 w-full"
                                     required
@@ -500,6 +511,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                 <select
                                     id="composerArtistId"
                                     name="composerArtistId"
+                                    value={formData.composerArtistId || ""}
                                     onChange={handleChange}
                                     className="border rounded p-2 w-full"
                                     required
@@ -528,6 +540,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                 <select
                                     id="productionCountryId"
                                     name="productionCountryId"
+                                    value={formData.productionCountryId || ""}
                                     onChange={handleChange}
                                     className="border rounded p-2 w-full"
                                     required
@@ -556,6 +569,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                 <select
                                     id="genreId"
                                     name="genreId"
+                                    value={formData.genreId || ""}
                                     onChange={handleChange}
                                     className="border rounded p-2 w-full"
                                     required
@@ -584,6 +598,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                 <select
                                     id="concertHallId"
                                     name="concertHallId"
+                                    value={formData.concertHallId || ""}
                                     onChange={handleChange}
                                     className="border rounded p-2 w-full"
                                     required
@@ -617,6 +632,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                 type="text"
                                 id="name"
                                 name="name"
+                                value={formData.name || ""}
                                 onChange={handleChange}
                                 className="border rounded p-2 w-full"
                                 required
@@ -630,6 +646,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                 type="date"
                                 id="birth_date"
                                 name="birth_date"
+                                value={formData.birth_date || ""}
                                 onChange={handleChange}
                                 className="border rounded p-2 w-full"
                                 required
@@ -643,6 +660,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                 <select
                                     id="country_id"
                                     name="country_id"
+                                    value={formData.country_id || ""}
                                     onChange={handleChange}
                                     className="border rounded p-2 w-full"
                                     required
@@ -675,6 +693,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                 type="text"
                                 id="name"
                                 name="name"
+                                value={formData.name || ""}
                                 onChange={handleChange}
                                 className="border rounded p-2 w-full"
                                 required
@@ -688,6 +707,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                 type="text"
                                 id="country_code"
                                 name="country_code"
+                                value={formData.country_code || ""}
                                 onChange={handleChange}
                                 className="border rounded p-2 w-full"
                                 required
@@ -705,6 +725,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                 type="text"
                                 id="name"
                                 name="name"
+                                value={formData.name || ""}
                                 onChange={handleChange}
                                 className="border rounded p-2 w-full"
                                 required
@@ -718,6 +739,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                 type="text"
                                 id="description"
                                 name="description"
+                                value={formData.description || ""}
                                 onChange={handleChange}
                                 className="border rounded p-2 w-full"
                                 required
@@ -735,6 +757,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                 type="text"
                                 id="name"
                                 name="name"
+                                value={formData.name || ""}
                                 onChange={handleChange}
                                 className="border rounded p-2 w-full"
                                 required
@@ -748,6 +771,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                 type="text"
                                 id="location"
                                 name="location"
+                                value={formData.location || ""}
                                 onChange={handleChange}
                                 className="border rounded p-2 w-full"
                                 required
@@ -761,6 +785,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                 type="number"
                                 id="capacity"
                                 name="capacity"
+                                value={formData.capacity || ""}
                                 onChange={handleChange}
                                 className="border rounded p-2 w-full"
                                 required
@@ -777,7 +802,7 @@ const CreateMusicEntityPage: React.FC = () => {
             {result && (
                 <div className="mt-4">
                     <h2 className="text-xl font-bold">
-                        ✅ Создана запись &#34;{getRussianEntityName(entityType)}&#34; с данными:
+                        ✅ Создана запись &quot;{getRussianEntityName(entityType)}&quot; с данными:
                     </h2>
                     <pre className="bg-gray-100 p-4 rounded">{JSON.stringify(result, null, 2)}</pre>
                 </div>
@@ -793,7 +818,6 @@ const CreateMusicEntityPage: React.FC = () => {
             )}
         </div>
     );
-
 };
 
 export default CreateMusicEntityPage;
