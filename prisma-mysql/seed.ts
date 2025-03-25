@@ -12,35 +12,39 @@ const prisma = new PrismaClient({
     datasourceUrl: process.env.DATABASE_MYSQL_URL,
 });
 
+const defaultCreatedAt = new Date("2025-03-01T00:00:00.000Z");
+
 async function main() {
-    await prisma.song.deleteMany();
-    await prisma.composerArtist.deleteMany();
-    await prisma.album.deleteMany();
-    await prisma.productionCountry.deleteMany();
-    await prisma.genre.deleteMany();
-    await prisma.concertHall.deleteMany();
+    if (await prisma.song.count() > 0) return;
+    if (await prisma.composerArtist.count() > 0) return;
+    if (await prisma.album.count() > 0) return;
+    if (await prisma.productionCountry.count() > 0) return;
+    if (await prisma.genre.count() > 0) return;
+    if (await prisma.concertHall.count() > 0) return;
 
     const countriesData: Omit<ProductionCountry, "id">[] = [
-        { name: "Россия", country_code: "RU" },
-        { name: "США", country_code: "US" },
-        { name: "Великобритания", country_code: "GB" },
-        { name: "Германия", country_code: "DE" },
+        { name: "Россия", country_code: "RU", createdAt: defaultCreatedAt },
+        { name: "США", country_code: "US", createdAt: defaultCreatedAt },
+        { name: "Великобритания", country_code: "GB", createdAt: defaultCreatedAt },
+        { name: "Германия", country_code: "DE", createdAt: defaultCreatedAt },
     ];
 
     const countries: ProductionCountry[] = await Promise.all(
-        countriesData.map((country) => prisma.productionCountry.create({ data: country }))
+        countriesData.map((country) =>
+            prisma.productionCountry.create({ data: country })
+        )
     );
 
     const albumsData: Omit<Album, "id">[] = [
-        { name: "Группа крови", release_date: new Date("1986-01-01") },
-        { name: "Медведица", release_date: new Date("1990-01-01") },
-        { name: "Районы-кварталы", release_date: new Date("2000-01-01") },
-        { name: "Abbey Road", release_date: new Date("1969-09-26") },
-        { name: "A Night at the Opera", release_date: new Date("1975-11-21") },
-        { name: "Hybrid Theory", release_date: new Date("2000-10-24") },
-        { name: "Back in Black", release_date: new Date("1980-07-25") },
-        { name: "Золотая коллекция", release_date: new Date("2005-01-01") },
-        { name: "Heavy Metal 2", release_date: new Date("1999-01-01") },
+        { name: "Группа крови", release_date: new Date("1986-01-01"), createdAt: defaultCreatedAt },
+        { name: "Медведица", release_date: new Date("1990-01-01"), createdAt: defaultCreatedAt },
+        { name: "Районы-кварталы", release_date: new Date("2000-01-01"), createdAt: defaultCreatedAt },
+        { name: "Abbey Road", release_date: new Date("1969-09-26"), createdAt: defaultCreatedAt },
+        { name: "A Night at the Opera", release_date: new Date("1975-11-21"), createdAt: defaultCreatedAt },
+        { name: "Hybrid Theory", release_date: new Date("2000-10-24"), createdAt: defaultCreatedAt },
+        { name: "Back in Black", release_date: new Date("1980-07-25"), createdAt: defaultCreatedAt },
+        { name: "Золотая коллекция", release_date: new Date("2005-01-01"), createdAt: defaultCreatedAt },
+        { name: "Heavy Metal 2", release_date: new Date("1999-01-01"), createdAt: defaultCreatedAt },
     ];
 
     const albums: Album[] = await Promise.all(
@@ -48,12 +52,12 @@ async function main() {
     );
 
     const artistsData: Omit<ComposerArtist, "id">[] = [
-        { name: "Кино", birth_date: new Date("1962-01-01"), country_id: countries[0].id },
-        { name: "Мумий Тролль", birth_date: new Date("1975-01-01"), country_id: countries[0].id },
-        { name: "Звери", birth_date: new Date("1980-01-01"), country_id: countries[0].id },
-        { name: "The Beatles", birth_date: new Date("1940-01-01"), country_id: countries[2].id },
-        { name: "Queen", birth_date: new Date("1945-01-01"), country_id: countries[2].id },
-        { name: "Linkin Park", birth_date: new Date("1971-01-01"), country_id: countries[1].id },
+        { name: "Кино", birth_date: new Date("1962-01-01"), country_id: countries[0].id, createdAt: defaultCreatedAt },
+        { name: "Мумий Тролль", birth_date: new Date("1975-01-01"), country_id: countries[0].id, createdAt: defaultCreatedAt },
+        { name: "Звери", birth_date: new Date("1980-01-01"), country_id: countries[0].id, createdAt: defaultCreatedAt },
+        { name: "The Beatles", birth_date: new Date("1940-01-01"), country_id: countries[2].id, createdAt: defaultCreatedAt },
+        { name: "Queen", birth_date: new Date("1945-01-01"), country_id: countries[2].id, createdAt: defaultCreatedAt },
+        { name: "Linkin Park", birth_date: new Date("1971-01-01"), country_id: countries[1].id, createdAt: defaultCreatedAt },
     ];
 
     const artists: ComposerArtist[] = await Promise.all(
@@ -61,10 +65,10 @@ async function main() {
     );
 
     const genresData: Omit<Genre, "id">[] = [
-        { name: "Рок", description: "Классический рок" },
-        { name: "Поп", description: "Поп-музыка" },
-        { name: "Альтернатива", description: "Альтернативная музыка" },
-        { name: "Электронная", description: "Электронная музыка" },
+        { name: "Рок", description: "Классический рок", createdAt: defaultCreatedAt },
+        { name: "Поп", description: "Поп-музыка", createdAt: defaultCreatedAt },
+        { name: "Альтернатива", description: "Альтернативная музыка", createdAt: defaultCreatedAt },
+        { name: "Электронная", description: "Электронная музыка", createdAt: defaultCreatedAt },
     ];
 
     const genres: Genre[] = await Promise.all(
@@ -72,14 +76,14 @@ async function main() {
     );
 
     const hallsData: Omit<ConcertHall, "id">[] = [
-        { name: "Большой зал Филармонии", location: "Москва", capacity: 1500 },
-        { name: "Концертный зал им. Чайковского", location: "Санкт-Петербург", capacity: 1200 },
-        { name: "Олимпия", location: "Москва", capacity: 2000 },
-        { name: "Royal Albert Hall", location: "Лондон", capacity: 5000 },
-        { name: "Madison Square Garden", location: "Нью-Йорк", capacity: 20000 },
-        { name: "Sydney Opera House", location: "Сидней", capacity: 5500 },
-        { name: "Staples Center", location: "Лос-Анджелес", capacity: 19000 },
-        { name: "The O2 Arena", location: "Лондон", capacity: 25000 },
+        { name: "Большой зал Филармонии", location: "Москва", capacity: 1500, createdAt: defaultCreatedAt },
+        { name: "Концертный зал им. Чайковского", location: "Санкт-Петербург", capacity: 1200, createdAt: defaultCreatedAt },
+        { name: "Олимпия", location: "Москва", capacity: 2000, createdAt: defaultCreatedAt },
+        { name: "Royal Albert Hall", location: "Лондон", capacity: 5000, createdAt: defaultCreatedAt },
+        { name: "Madison Square Garden", location: "Нью-Йорк", capacity: 20000, createdAt: defaultCreatedAt },
+        { name: "Sydney Opera House", location: "Сидней", capacity: 5500, createdAt: defaultCreatedAt },
+        { name: "Staples Center", location: "Лос-Анджелес", capacity: 19000, createdAt: defaultCreatedAt },
+        { name: "The O2 Arena", location: "Лондон", capacity: 25000, createdAt: defaultCreatedAt },
     ];
 
     const halls: ConcertHall[] = await Promise.all(
@@ -90,11 +94,12 @@ async function main() {
         {
             title: "Перемен",
             releaseDate: new Date("1986-03-01"),
-            albumId: albums[0].id, // "Группа крови"
-            composerArtistId: artists[0].id, // "Кино"
-            productionCountryId: countries[0].id, // "Россия"
-            genreId: genres[0].id, // "Рок"
+            albumId: albums[0].id,
+            composerArtistId: artists[0].id,
+            productionCountryId: countries[0].id,
+            genreId: genres[0].id,
             concertHallId: halls[0].id,
+            createdAt: defaultCreatedAt,
         },
         {
             title: "Скованные одной цепью",
@@ -104,24 +109,27 @@ async function main() {
             productionCountryId: countries[0].id,
             genreId: genres[0].id,
             concertHallId: halls[1].id,
+            createdAt: defaultCreatedAt,
         },
         {
             title: "Медведица",
             releaseDate: new Date("1995-07-20"),
-            albumId: albums[1].id, // "Медведица"
-            composerArtistId: artists[1].id, // "Мумий Тролль"
+            albumId: albums[1].id,
+            composerArtistId: artists[1].id,
             productionCountryId: countries[0].id,
-            genreId: genres[2].id, // "Альтернатива"
+            genreId: genres[2].id,
             concertHallId: halls[2].id,
+            createdAt: defaultCreatedAt,
         },
         {
             title: "Районы-кварталы",
             releaseDate: new Date("2000-01-10"),
-            albumId: albums[2].id, // "Районы-кварталы"
-            composerArtistId: artists[2].id, // "Звери"
+            albumId: albums[2].id,
+            composerArtistId: artists[2].id,
             productionCountryId: countries[0].id,
-            genreId: genres[1].id, // "Поп"
+            genreId: genres[1].id,
             concertHallId: halls[3].id,
+            createdAt: defaultCreatedAt,
         },
         {
             title: "Группа крови",
@@ -131,33 +139,37 @@ async function main() {
             productionCountryId: countries[0].id,
             genreId: genres[0].id,
             concertHallId: halls[4].id,
+            createdAt: defaultCreatedAt,
         },
         {
             title: "Hey Jude",
             releaseDate: new Date("1968-08-26"),
-            albumId: albums[3].id, // "Abbey Road"
-            composerArtistId: artists[3].id, // "The Beatles"
-            productionCountryId: countries[2].id, // "Великобритания"
+            albumId: albums[3].id,
+            composerArtistId: artists[3].id,
+            productionCountryId: countries[2].id,
             genreId: genres[0].id,
             concertHallId: halls[5].id,
+            createdAt: defaultCreatedAt,
         },
         {
             title: "Bohemian Rhapsody",
             releaseDate: new Date("1975-10-31"),
-            albumId: albums[4].id, // "A Night at the Opera"
-            composerArtistId: artists[4].id, // "Queen"
+            albumId: albums[4].id,
+            composerArtistId: artists[4].id,
             productionCountryId: countries[2].id,
             genreId: genres[0].id,
             concertHallId: halls[6].id,
+            createdAt: defaultCreatedAt,
         },
         {
             title: "In the End",
             releaseDate: new Date("2001-10-09"),
-            albumId: albums[5].id, // "Hybrid Theory"
-            composerArtistId: artists[5].id, // "Linkin Park"
-            productionCountryId: countries[1].id, // "США"
+            albumId: albums[5].id,
+            composerArtistId: artists[5].id,
+            productionCountryId: countries[1].id,
             genreId: genres[0].id,
             concertHallId: halls[7].id,
+            createdAt: defaultCreatedAt,
         },
         {
             title: "Пачка сигарет",
@@ -167,6 +179,7 @@ async function main() {
             productionCountryId: countries[0].id,
             genreId: genres[0].id,
             concertHallId: halls[0].id,
+            createdAt: defaultCreatedAt,
         },
         {
             title: "Половинка",
@@ -176,6 +189,7 @@ async function main() {
             productionCountryId: countries[0].id,
             genreId: genres[2].id,
             concertHallId: halls[1].id,
+            createdAt: defaultCreatedAt,
         },
         {
             title: "Всё, что в жизни есть",
@@ -185,6 +199,7 @@ async function main() {
             productionCountryId: countries[0].id,
             genreId: genres[1].id,
             concertHallId: halls[2].id,
+            createdAt: defaultCreatedAt,
         },
         {
             title: "Let It Be",
@@ -194,6 +209,7 @@ async function main() {
             productionCountryId: countries[2].id,
             genreId: genres[0].id,
             concertHallId: halls[3].id,
+            createdAt: defaultCreatedAt,
         },
         {
             title: "We Will Rock You",
@@ -203,6 +219,7 @@ async function main() {
             productionCountryId: countries[2].id,
             genreId: genres[0].id,
             concertHallId: halls[4].id,
+            createdAt: defaultCreatedAt,
         },
         {
             title: "Numb",
@@ -212,6 +229,7 @@ async function main() {
             productionCountryId: countries[1].id,
             genreId: genres[0].id,
             concertHallId: halls[5].id,
+            createdAt: defaultCreatedAt,
         },
         {
             title: "Звезда по имени Солнце",
@@ -221,6 +239,7 @@ async function main() {
             productionCountryId: countries[0].id,
             genreId: genres[0].id,
             concertHallId: halls[6].id,
+            createdAt: defaultCreatedAt,
         },
         {
             title: "Соло для гитары",
@@ -230,6 +249,7 @@ async function main() {
             productionCountryId: countries[0].id,
             genreId: genres[2].id,
             concertHallId: halls[7].id,
+            createdAt: defaultCreatedAt,
         },
         {
             title: "Прости, моя любовь",
@@ -239,6 +259,7 @@ async function main() {
             productionCountryId: countries[0].id,
             genreId: genres[1].id,
             concertHallId: halls[0].id,
+            createdAt: defaultCreatedAt,
         },
         {
             title: "Yesterday",
@@ -248,6 +269,7 @@ async function main() {
             productionCountryId: countries[2].id,
             genreId: genres[0].id,
             concertHallId: halls[1].id,
+            createdAt: defaultCreatedAt,
         },
         {
             title: "Don't Stop Me Now",
@@ -257,6 +279,7 @@ async function main() {
             productionCountryId: countries[2].id,
             genreId: genres[0].id,
             concertHallId: halls[2].id,
+            createdAt: defaultCreatedAt,
         },
         {
             title: "Crawling",
@@ -266,6 +289,7 @@ async function main() {
             productionCountryId: countries[1].id,
             genreId: genres[0].id,
             concertHallId: halls[3].id,
+            createdAt: defaultCreatedAt,
         },
     ];
 

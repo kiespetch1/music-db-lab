@@ -12,7 +12,16 @@ export type Statistics = {
     earliestSong: Song | null;
     latestSong: Song | null;
     songsPerGenre: SongGenreStat[];
+    recentAdditions?: {
+        songs: number;
+        albums: number;
+        composers: number;
+        productionCountries: number;
+        genres: number;
+        concertHalls: number;
+    };
 };
+
 
 export type SongGenreStat = {
     name: string;

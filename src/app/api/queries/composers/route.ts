@@ -49,6 +49,7 @@ export async function GET(request: Request) {
 
         const composers: ComposerArtist[] = await prisma.composerArtist.findMany({
             where: whereClause,
+            orderBy: {name: "asc"},
         });
         return NextResponse.json(composers);
     } catch (error) {

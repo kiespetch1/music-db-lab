@@ -8,9 +8,6 @@
     "migrate-reset-mysql": "prisma migrate reset --schema=prisma-mysql/schema.mysql.prisma --force",
     "migrate-postgres": "npx prisma migrate dev --schema=prisma-postgres/schema.postgres.prisma --name init",
     "migrate-mysql": "npx prisma migrate dev --schema=prisma-mysql/schema.mysql.prisma --name init",
-    "migrate-resolve-postgres": "npx prisma migrate resolve --applied \"20250318172021_init\" --schema=prisma-postgres/schema.postgres.prisma || true",
-    "migrate-deploy-postgres": "npx prisma migrate deploy --schema=prisma-postgres/schema.postgres.prisma",
-    "migrate-deploy-mysql": "npx prisma migrate deploy --schema=prisma-mysql/schema.mysql.prisma",
     "generate-postgres": "npx prisma generate --schema=prisma-postgres/schema.postgres.prisma",
     "generate-mysql": "npx prisma generate --schema=prisma-mysql/schema.mysql.prisma",
     "prebuild:dev": "npm run migrate-reset-postgres && npm run migrate-reset-mysql && npm run migrate-postgres && npm run migrate-mysql",
@@ -18,7 +15,7 @@
     "build:dev": "npm run prebuild:dev && npm run generate-postgres && npm run seed:postgres && npm run generate-mysql && npm run seed:mysql && next build",
     "seed:postgres": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma-postgres/seed.ts --schema=prisma-postgres/schema.postgres.prisma",
     "seed:mysql": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma-mysql/seed.ts --schema=prisma-mysql/schema.mysql.prisma",
-    "prebuild:prod": "npm run migrate-resolve-postgres && npm run migrate-deploy-postgres && npm run migrate-deploy-mysql && npm run generate-postgres && npm run generate-mysql",
+    "prebuild:prod": "npm run migrate-postgres && npm run migrate-mysql",
     "build:prod": "npm run prebuild:prod && npm run seed:postgres && npm run seed:mysql && next build",
     "build": "npm run generate-postgres && npm run seed:postgres && npm run generate-mysql && npm run seed:mysql && next build"
   },

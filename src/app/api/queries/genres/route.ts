@@ -20,9 +20,12 @@ export async function GET(request: Request) {
                         },
                     },
                 },
+                orderBy: {name: "asc"},
             });
         } else {
-            genres = await prisma.genre.findMany();
+            genres = await prisma.genre.findMany({
+                orderBy: {name: "asc"},
+            });
         }
         return NextResponse.json(genres);
     } catch (error) {

@@ -12,6 +12,7 @@ model Album {
   name         String
   release_date DateTime @default(now())
   songs        Song[]
+  createdAt    DateTime @default(now())
 
   @@map("albums")
 }
@@ -25,6 +26,7 @@ model Song {
   productionCountryId Int
   genreId             Int
   concertHallId       Int
+  createdAt           DateTime @default(now())
 
   album             Album             @relation(fields: [albumId], references: [id])
   composerArtist    ComposerArtist    @relation(fields: [composerArtistId], references: [id])
@@ -41,6 +43,7 @@ model ComposerArtist {
   birth_date DateTime @default(dbgenerated("'1970-01-01T00:00:00.000Z'"))
   country_id Int      @default(1)
   songs      Song[]
+  createdAt  DateTime @default(now())
 
   country ProductionCountry @relation(fields: [country_id], references: [id])
 
@@ -53,25 +56,28 @@ model ProductionCountry {
   country_code   String           @default("N/A")
   songs          Song[]
   ComposerArtist ComposerArtist[]
+  createdAt      DateTime         @default(now())
 
   @@map("production_countries")
 }
 
 model Genre {
-  id          Int    @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   name        String
-  description String @default("")
+  description String   @default("")
   songs       Song[]
+  createdAt   DateTime @default(now())
 
   @@map("genre")
 }
 
 model ConcertHall {
-  id       Int    @id @default(autoincrement())
-  name     String
-  location String
-  capacity Int    @default(100)
-  songs    Song[]
+  id        Int      @id @default(autoincrement())
+  name      String
+  location  String
+  capacity  Int      @default(100)
+  songs     Song[]
+  createdAt DateTime @default(now())
 
   @@map("concert_hall")
 }

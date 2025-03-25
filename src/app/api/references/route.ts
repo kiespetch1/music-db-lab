@@ -21,26 +21,31 @@ export async function GET(request: Request): Promise<NextResponse> {
         switch (type) {
             case "album":
                 data = await prisma.album.findMany({
+                    orderBy: {name: "asc"},
                     select: { id: true, name: true, release_date: true },
                 });
                 break;
             case "composerArtist":
                 data = await prisma.composerArtist.findMany({
+                    orderBy: {name: "asc"},
                     select: { id: true, name: true },
                 });
                 break;
             case "productionCountry":
                 data = await prisma.productionCountry.findMany({
+                    orderBy: {name: "asc"},
                     select: { id: true, name: true, country_code: true },
                 });
                 break;
             case "genre":
                 data = await prisma.genre.findMany({
+                    orderBy: {name: "asc"},
                     select: { id: true, name: true, description: true },
                 });
                 break;
             case "concertHall":
                 data = await prisma.concertHall.findMany({
+                    orderBy: {name: "asc"},
                     select: { id: true, name: true, location: true, capacity: true },
                 });
                 break;
