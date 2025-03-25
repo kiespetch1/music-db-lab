@@ -16,8 +16,8 @@
     "seed:postgres": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma-postgres/seed.ts --schema=prisma-postgres/schema.postgres.prisma",
     "seed:mysql": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma-mysql/seed.ts --schema=prisma-mysql/schema.mysql.prisma",
     "prebuild:prod": "npm run migrate-postgres && npm run migrate-mysql",
-    "build:prod": "npm run prebuild:prod && npm run seed:postgres && npm run seed:mysql && next build",
-    "build": "npm run generate-postgres && npm run seed:postgres && npm run generate-mysql && npm run seed:mysql && next build"
+    "build:prod": "npm run seed:postgres && npm run seed:mysql && next build",
+    "build": "next build"
   },
   "dependencies": {
     "@prisma/client": "^6.5.0",
