@@ -315,20 +315,9 @@ const CreateMusicEntityPage: React.FC = () => {
                                             required
                                         >
                                             <option value="">Выберите страну</option>
-                                            {productionCountryOptions.map((option) => (
-                                                <option key={option.id} value={option.id}>
-                                                    {option.name}
-                                                </option>
-                                            ))}
+                                            {/* Здесь должен быть список стран */}
                                         </select>
                                     </div>
-                                    <button
-                                        type="button"
-                                        onClick={() => setActiveModal("productionCountry")}
-                                        className="mt-6 ml-2 bg-green-500 text-white px-2 py-1 rounded"
-                                    >
-                                        Добавить
-                                    </button>
                                 </div>
                             </>
                         )}
@@ -362,6 +351,32 @@ const CreateMusicEntityPage: React.FC = () => {
                                 </div>
                             </>
                         )}
+                        {type === "concertHall" && (
+                            <>
+                                <div>
+                                    <label className="block font-medium">Локация:</label>
+                                    <input
+                                        type="text"
+                                        name="location"
+                                        value={modalFormData.location || ""}
+                                        onChange={handleModalChange}
+                                        className="border rounded p-1 w-full"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block font-medium">Вместимость:</label>
+                                    <input
+                                        type="number"
+                                        name="capacity"
+                                        value={modalFormData.capacity || ""}
+                                        onChange={handleModalChange}
+                                        className="border rounded p-1 w-full"
+                                        required
+                                    />
+                                </div>
+                            </>
+                        )}
                         {modalError && <div className="text-red-500">{modalError}</div>}
                         <div className="flex justify-end space-x-2">
                             <button
@@ -383,6 +398,7 @@ const CreateMusicEntityPage: React.FC = () => {
             </div>
         );
     };
+
 
     return (
         <div className="container mx-auto py-8 px-4">
@@ -793,6 +809,7 @@ const CreateMusicEntityPage: React.FC = () => {
                         </div>
                     </>
                 )}
+
                 <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
                     Создать
                 </button>
