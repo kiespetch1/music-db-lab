@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, ReactNode } from "react";
-import { useDB } from "~/lib/DBContext";
-import { z } from "zod";
+import React, {useState, useEffect, useCallback, ReactNode} from "react";
+import {useDB} from "~/lib/DBContext";
+import {z} from "zod";
 import {
     albumSchema,
     songSchema,
@@ -48,7 +48,7 @@ const CreateMusicEntityPage: React.FC = () => {
     const [entityType, setEntityType] = useState<ReferenceType>("song");
     const [result, setResult] = useState<ReactNode>(null);
     const [error, setError] = useState<string | null>(null);
-    const { currentDb } = useDB();
+    const {currentDb} = useDB();
 
     const [albumOptions, setAlbumOptions] = useState<Reference[]>([]);
     const [composerArtistOptions, setComposerArtistOptions] = useState<Reference[]>([]);
@@ -60,8 +60,8 @@ const CreateMusicEntityPage: React.FC = () => {
     const [activeModals, setActiveModals] = useState<Exclude<ReferenceType, "song">[]>([]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        const {name, value} = e.target;
+        setFormData((prev) => ({...prev, [name]: value}));
     };
 
     const handleEntityTypeChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
@@ -142,8 +142,8 @@ const CreateMusicEntityPage: React.FC = () => {
         try {
             const response = await fetch(`/api/add?db=${currentDb}`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ entityType, ...formData }),
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({entityType, ...formData}),
             });
             if (!response.ok) {
                 const errData = await response.json();
@@ -225,8 +225,8 @@ const CreateMusicEntityPage: React.FC = () => {
         const [modalError, setModalError] = useState<string | null>(null);
 
         const handleModalChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
-            const { name, value } = e.target;
-            setModalFormData((prev) => ({ ...prev, [name]: value }));
+            const {name, value} = e.target;
+            setModalFormData((prev) => ({...prev, [name]: value}));
         };
 
         const resetModalFormData = (): void => {
@@ -239,8 +239,8 @@ const CreateMusicEntityPage: React.FC = () => {
             try {
                 const response = await fetch(`/api/add?db=${db}`, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ entityType: type, ...modalFormData }),
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({entityType: type, ...modalFormData}),
                 });
                 if (!response.ok) {
                     const errData = await response.json();
@@ -313,29 +313,31 @@ const CreateMusicEntityPage: React.FC = () => {
                                 <div className="flex items-center">
                                     <div className="flex-1">
                                         <label className="block font-medium">Страна:</label>
-                                        <select
-                                            id="country_id"
-                                            name="country_id"
-                                            value={modalFormData.country_id || ""}
-                                            onChange={handleModalChange}
-                                            className="border rounded p-1 w-full"
-                                            required
-                                        >
-                                            <option value="">Выберите страну</option>
-                                            {productionCountryOptions.map((option) => (
-                                                <option key={option.id} value={option.id}>
-                                                    {option.name}
-                                                </option>
-                                            ))}
-                                        </select>
+                                        <div className="flex flex-row">
+                                            <select
+                                                id="country_id"
+                                                name="country_id"
+                                                value={modalFormData.country_id || ""}
+                                                onChange={handleModalChange}
+                                                className="border rounded p-1 w-full"
+                                                required
+                                            >
+                                                <option value="">Выберите страну</option>
+                                                {productionCountryOptions.map((option) => (
+                                                    <option key={option.id} value={option.id}>
+                                                        {option.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            <button
+                                                type="button"
+                                                onClick={() => openModal("productionCountry")}
+                                                className="btn ml-2 bg-green-500 text-white px-2 py-1 rounded"
+                                            >
+                                                Добавить
+                                            </button>
+                                        </div>
                                     </div>
-                                    <button
-                                        type="button"
-                                        onClick={() => openModal("productionCountry")}
-                                        className="mt-6 ml-2 bg-green-500 text-white px-2 py-1 rounded"
-                                    >
-                                        Добавить
-                                    </button>
                                 </div>
                             </>
                         )}
