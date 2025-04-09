@@ -1,8 +1,8 @@
 "use client";
 
-import React, {useState, useEffect, useCallback, ReactNode} from "react";
-import {useDB} from "~/lib/DBContext";
-import {z} from "zod";
+import React, { useState, useEffect, useCallback, ReactNode } from "react";
+import { useDB } from "~/lib/DBContext";
+import { z } from "zod";
 import {
     albumSchema,
     songSchema,
@@ -39,6 +39,7 @@ interface ReferenceAddModalProps {
     db: string;
     onClose: () => void;
     onCreated: () => void;
+    openModal: (modalType: Exclude<ReferenceType, "song">) => void;
 }
 
 const CreateMusicEntityPage: React.FC = () => {
@@ -47,7 +48,7 @@ const CreateMusicEntityPage: React.FC = () => {
     const [entityType, setEntityType] = useState<ReferenceType>("song");
     const [result, setResult] = useState<ReactNode>(null);
     const [error, setError] = useState<string | null>(null);
-    const {currentDb} = useDB();
+    const { currentDb } = useDB();
 
     const [albumOptions, setAlbumOptions] = useState<Reference[]>([]);
     const [composerArtistOptions, setComposerArtistOptions] = useState<Reference[]>([]);
@@ -55,11 +56,12 @@ const CreateMusicEntityPage: React.FC = () => {
     const [genreOptions, setGenreOptions] = useState<Reference[]>([]);
     const [concertHallOptions, setConcertHallOptions] = useState<Reference[]>([]);
 
-    const [activeModal, setActiveModal] = useState<Exclude<ReferenceType, "song"> | null>(null);
+    // Массив активных модалок для поддержки вложенности
+    const [activeModals, setActiveModals] = useState<Exclude<ReferenceType, "song">[]>([]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
-        const {name, value} = e.target;
-        setFormData((prev) => ({...prev, [name]: value}));
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleEntityTypeChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
@@ -80,8 +82,7 @@ const CreateMusicEntityPage: React.FC = () => {
                     setFunc([]);
                 }
             } catch (err) {
-                if (err instanceof Error)
-                    setFunc([]);
+                if (err instanceof Error) setFunc([]);
             }
         },
         [currentDb]
@@ -119,7 +120,6 @@ const CreateMusicEntityPage: React.FC = () => {
         fetchOptions,
     ]);
 
-    // Сброс данных формы (после успешного создания записи)
     const resetFormData = (): void => {
         setFormData({});
     };
@@ -142,8 +142,8 @@ const CreateMusicEntityPage: React.FC = () => {
         try {
             const response = await fetch(`/api/add?db=${currentDb}`, {
                 method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({entityType, ...formData}),
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ entityType, ...formData }),
             });
             if (!response.ok) {
                 const errData = await response.json();
@@ -151,22 +151,23 @@ const CreateMusicEntityPage: React.FC = () => {
             } else {
                 const data = await response.json();
                 setResult(data);
-                resetFormData(); // Очистка формы после успешного создания
+                resetFormData();
             }
         } catch (err) {
-            if (err instanceof Error)
-                setError(err.message || "Ошибка при отправке запроса");
+            if (err instanceof Error) setError(err.message || "Ошибка при отправке запроса");
         }
     };
 
+    // Функции для управления модалками (массив позволяет поддерживать вложенные модалки)
     const handleModalClose = (): void => {
-        setActiveModal(null);
+        setActiveModals((prev) => prev.slice(0, -1));
     };
 
     const handleModalCreated = (): void => {
-        if (activeModal) {
-            fetchOptions(activeModal, (options) => {
-                switch (activeModal) {
+        if (activeModals.length > 0) {
+            const modalType = activeModals[activeModals.length - 1];
+            fetchOptions(modalType, (options) => {
+                switch (modalType) {
                     case "album":
                         setAlbumOptions(options);
                         break;
@@ -189,6 +190,10 @@ const CreateMusicEntityPage: React.FC = () => {
         }
     };
 
+    const handleOpenModal = (modalType: Exclude<ReferenceType, "song">): void => {
+        setActiveModals((prev) => [...prev, modalType]);
+    };
+
     const getRussianEntityName = (name: ReferenceType): string => {
         switch (name) {
             case "album":
@@ -208,18 +213,20 @@ const CreateMusicEntityPage: React.FC = () => {
         }
     };
 
+    // Компонент модального окна для добавления справочников
     const ReferenceAddModal: React.FC<ReferenceAddModalProps> = ({
                                                                      type,
                                                                      db,
                                                                      onClose,
                                                                      onCreated,
+                                                                     openModal,
                                                                  }) => {
         const [modalFormData, setModalFormData] = useState<Record<string, string>>({});
         const [modalError, setModalError] = useState<string | null>(null);
 
         const handleModalChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
-            const {name, value} = e.target;
-            setModalFormData((prev) => ({...prev, [name]: value}));
+            const { name, value } = e.target;
+            setModalFormData((prev) => ({ ...prev, [name]: value }));
         };
 
         const resetModalFormData = (): void => {
@@ -232,8 +239,8 @@ const CreateMusicEntityPage: React.FC = () => {
             try {
                 const response = await fetch(`/api/add?db=${db}`, {
                     method: "POST",
-                    headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({entityType: type, ...modalFormData}),
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ entityType: type, ...modalFormData }),
                 });
                 if (!response.ok) {
                     const errData = await response.json();
@@ -241,7 +248,7 @@ const CreateMusicEntityPage: React.FC = () => {
                 } else {
                     onCreated();
                     onClose();
-                    resetModalFormData(); // Очистка формы модального окна
+                    resetModalFormData();
                 }
             } catch (err) {
                 if (err instanceof Error) {
@@ -251,7 +258,7 @@ const CreateMusicEntityPage: React.FC = () => {
         };
 
         return (
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
                 <div className="bg-white p-4 rounded w-80">
                     <h2 className="text-lg font-bold mb-2">
                         Добавить новый{" "}
@@ -306,32 +313,29 @@ const CreateMusicEntityPage: React.FC = () => {
                                 <div className="flex items-center">
                                     <div className="flex-1">
                                         <label className="block font-medium">Страна:</label>
-                                        <div className="flex flex-row">
-
-                                            <select
-                                                id="country_id"
-                                                name="country_id"
-                                                value={modalFormData.country_id || ""}
-                                                onChange={handleModalChange}
-                                                className="border rounded p-1 w-full"
-                                                required
-                                            >
-                                                <option value="">Выберите страну</option>
-                                                {productionCountryOptions.map((option) => (
-                                                    <option key={option.id} value={option.id}>
-                                                        {option.name}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                            <button
-                                                type="button"
-                                                onClick={() => setActiveModal("productionCountry")}
-                                                className="btn ml-2 bg-green-500 text-white px-2 py-1 rounded"
-                                            >
-                                                Добавить
-                                            </button>
-                                        </div>
+                                        <select
+                                            id="country_id"
+                                            name="country_id"
+                                            value={modalFormData.country_id || ""}
+                                            onChange={handleModalChange}
+                                            className="border rounded p-1 w-full"
+                                            required
+                                        >
+                                            <option value="">Выберите страну</option>
+                                            {productionCountryOptions.map((option) => (
+                                                <option key={option.id} value={option.id}>
+                                                    {option.name}
+                                                </option>
+                                            ))}
+                                        </select>
                                     </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => openModal("productionCountry")}
+                                        className="mt-6 ml-2 bg-green-500 text-white px-2 py-1 rounded"
+                                    >
+                                        Добавить
+                                    </button>
                                 </div>
                             </>
                         )}
@@ -367,17 +371,10 @@ const CreateMusicEntityPage: React.FC = () => {
                         )}
                         {modalError && <div className="text-red-500">{modalError}</div>}
                         <div className="flex justify-end space-x-2">
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="px-2 py-1 border rounded"
-                            >
+                            <button type="button" onClick={onClose} className="px-2 py-1 border rounded">
                                 Отмена
                             </button>
-                            <button
-                                type="submit"
-                                className="px-2 py-1 bg-blue-500 text-white rounded"
-                            >
+                            <button type="submit" className="px-2 py-1 bg-blue-500 text-white rounded">
                                 Создать
                             </button>
                         </div>
@@ -391,7 +388,6 @@ const CreateMusicEntityPage: React.FC = () => {
         <div className="container mx-auto py-8 px-4">
             <h1 className="text-3xl font-bold mb-4">Добавить запись в музыкальную БД</h1>
             <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Выбор типа записи */}
                 <div>
                     <label htmlFor="entityType" className="block font-medium">
                         Тип записи:
@@ -411,8 +407,6 @@ const CreateMusicEntityPage: React.FC = () => {
                         <option value="concertHall">Концертный зал</option>
                     </select>
                 </div>
-
-                {/* Форма для "album": ввод имени и даты выпуска */}
                 {entityType === "album" && (
                     <>
                         <div>
@@ -445,37 +439,39 @@ const CreateMusicEntityPage: React.FC = () => {
                         </div>
                     </>
                 )}
-
-                {/* Форма для "song": название, дата релиза и выпадающие списки */}
                 {entityType === "song" && (
                     <>
-                        <div>
-                            <label htmlFor="title" className="block font-medium">
-                                Название песни:
-                            </label>
-                            <input
-                                type="text"
-                                id="title"
-                                name="title"
-                                value={formData.title || ""}
-                                onChange={handleChange}
-                                className="border rounded p-2 w-full"
-                                required
-                            />
+                        <div className="flex items-center">
+                            <div className="flex-1">
+                                <label htmlFor="title" className="block font-medium">
+                                    Название песни:
+                                </label>
+                                <input
+                                    type="text"
+                                    id="title"
+                                    name="title"
+                                    value={formData.title || ""}
+                                    onChange={handleChange}
+                                    className="border rounded p-2 w-full"
+                                    required
+                                />
+                            </div>
                         </div>
-                        <div>
-                            <label htmlFor="releaseDate" className="block font-medium">
-                                Дата релиза:
-                            </label>
-                            <input
-                                type="date"
-                                id="releaseDate"
-                                name="releaseDate"
-                                value={formData.releaseDate || ""}
-                                onChange={handleChange}
-                                className="border rounded p-2 w-full"
-                                required
-                            />
+                        <div className="flex items-center">
+                            <div className="flex-1">
+                                <label htmlFor="releaseDate" className="block font-medium">
+                                    Дата релиза:
+                                </label>
+                                <input
+                                    type="date"
+                                    id="releaseDate"
+                                    name="releaseDate"
+                                    value={formData.releaseDate || ""}
+                                    onChange={handleChange}
+                                    className="border rounded p-2 w-full"
+                                    required
+                                />
+                            </div>
                         </div>
                         <div className="flex items-center">
                             <div className="flex-1">
@@ -500,7 +496,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                     </select>
                                     <button
                                         type="button"
-                                        onClick={() => setActiveModal("album")}
+                                        onClick={() => handleOpenModal("album")}
                                         className="btn ml-2 bg-green-500 text-white px-2 py-1 rounded"
                                     >
                                         Добавить
@@ -531,7 +527,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                     </select>
                                     <button
                                         type="button"
-                                        onClick={() => setActiveModal("composerArtist")}
+                                        onClick={() => handleOpenModal("composerArtist")}
                                         className="btn ml-2 bg-green-500 text-white px-2 py-1 rounded"
                                     >
                                         Добавить
@@ -562,7 +558,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                     </select>
                                     <button
                                         type="button"
-                                        onClick={() => setActiveModal("productionCountry")}
+                                        onClick={() => handleOpenModal("productionCountry")}
                                         className="btn ml-2 bg-green-500 text-white px-2 py-1 rounded"
                                     >
                                         Добавить
@@ -593,7 +589,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                     </select>
                                     <button
                                         type="button"
-                                        onClick={() => setActiveModal("genre")}
+                                        onClick={() => handleOpenModal("genre")}
                                         className="btn ml-2 bg-green-500 text-white px-2 py-1 rounded"
                                     >
                                         Добавить
@@ -624,7 +620,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                     </select>
                                     <button
                                         type="button"
-                                        onClick={() => setActiveModal("concertHall")}
+                                        onClick={() => handleOpenModal("concertHall")}
                                         className="btn ml-2 bg-green-500 text-white px-2 py-1 rounded"
                                     >
                                         Добавить
@@ -634,7 +630,6 @@ const CreateMusicEntityPage: React.FC = () => {
                         </div>
                     </>
                 )}
-
                 {entityType === "composerArtist" && (
                     <>
                         <div>
@@ -688,7 +683,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                     </select>
                                     <button
                                         type="button"
-                                        onClick={() => setActiveModal("productionCountry")}
+                                        onClick={() => handleOpenModal("productionCountry")}
                                         className="btn ml-2 bg-green-500 text-white px-2 py-1 rounded"
                                     >
                                         Добавить
@@ -823,14 +818,17 @@ const CreateMusicEntityPage: React.FC = () => {
                 </div>
             )}
 
-            {activeModal && (
+            {/* Рендер активных модалок */}
+            {activeModals.map((modalType, index) => (
                 <ReferenceAddModal
-                    type={activeModal}
+                    key={index}
+                    type={modalType}
                     db={currentDb}
                     onClose={handleModalClose}
                     onCreated={handleModalCreated}
+                    openModal={handleOpenModal}
                 />
-            )}
+            ))}
         </div>
     );
 };
