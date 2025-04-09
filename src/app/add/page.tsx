@@ -306,29 +306,32 @@ const CreateMusicEntityPage: React.FC = () => {
                                 <div className="flex items-center">
                                     <div className="flex-1">
                                         <label className="block font-medium">Страна:</label>
-                                        <select
-                                            id="country_id"
-                                            name="country_id"
-                                            value={modalFormData.country_id || ""}
-                                            onChange={handleModalChange}
-                                            className="border rounded p-1 w-full"
-                                            required
-                                        >
-                                            <option value="">Выберите страну</option>
-                                            {productionCountryOptions.map((option) => (
-                                                <option key={option.id} value={option.id}>
-                                                    {option.name}
-                                                </option>
-                                            ))}
-                                        </select>
+                                        <div className="flex flex-row">
+
+                                            <select
+                                                id="country_id"
+                                                name="country_id"
+                                                value={modalFormData.country_id || ""}
+                                                onChange={handleModalChange}
+                                                className="border rounded p-1 w-full"
+                                                required
+                                            >
+                                                <option value="">Выберите страну</option>
+                                                {productionCountryOptions.map((option) => (
+                                                    <option key={option.id} value={option.id}>
+                                                        {option.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            <button
+                                                type="button"
+                                                onClick={() => setActiveModal("productionCountry")}
+                                                className="btn ml-2 bg-green-500 text-white px-2 py-1 rounded"
+                                            >
+                                                Добавить
+                                            </button>
+                                        </div>
                                     </div>
-                                    <button
-                                        type="button"
-                                        onClick={() => setActiveModal("productionCountry")}
-                                        className="btn mt-6 ml-2 bg-green-500 text-white px-2 py-1 rounded"
-                                    >
-                                        Добавить
-                                    </button>
                                 </div>
                             </>
                         )}
@@ -446,37 +449,33 @@ const CreateMusicEntityPage: React.FC = () => {
                 {/* Форма для "song": название, дата релиза и выпадающие списки */}
                 {entityType === "song" && (
                     <>
-                        <div className="flex items-center">
-                            <div className="flex-1">
-                                <label htmlFor="title" className="block font-medium">
-                                    Название песни:
-                                </label>
-                                <input
-                                    type="text"
-                                    id="title"
-                                    name="title"
-                                    value={formData.title || ""}
-                                    onChange={handleChange}
-                                    className="border rounded p-2 w-full"
-                                    required
-                                />
-                            </div>
+                        <div>
+                            <label htmlFor="title" className="block font-medium">
+                                Название песни:
+                            </label>
+                            <input
+                                type="text"
+                                id="title"
+                                name="title"
+                                value={formData.title || ""}
+                                onChange={handleChange}
+                                className="border rounded p-2 w-full"
+                                required
+                            />
                         </div>
-                        <div className="flex items-center">
-                            <div className="flex-1">
-                                <label htmlFor="releaseDate" className="block font-medium">
-                                    Дата релиза:
-                                </label>
-                                <input
-                                    type="date"
-                                    id="releaseDate"
-                                    name="releaseDate"
-                                    value={formData.releaseDate || ""}
-                                    onChange={handleChange}
-                                    className="border rounded p-2 w-full"
-                                    required
-                                />
-                            </div>
+                        <div>
+                            <label htmlFor="releaseDate" className="block font-medium">
+                                Дата релиза:
+                            </label>
+                            <input
+                                type="date"
+                                id="releaseDate"
+                                name="releaseDate"
+                                value={formData.releaseDate || ""}
+                                onChange={handleChange}
+                                className="border rounded p-2 w-full"
+                                required
+                            />
                         </div>
                         <div className="flex items-center">
                             <div className="flex-1">
