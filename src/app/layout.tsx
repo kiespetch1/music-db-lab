@@ -3,8 +3,10 @@ import { ReactNode } from "react";
 import './globals.css';
 import { DBProvider } from "~/lib/DBContext";
 import DBSwitcher from "@/components/DBSwitcher";
+import cssVars from "css-vars-ponyfill";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+    cssVars()
     return (
         <html lang="ru">
         <head>

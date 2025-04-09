@@ -1,8 +1,8 @@
 "use client";
 
 import React, {useState, useEffect, useCallback, ReactNode} from "react";
-import { useDB } from "~/lib/DBContext";
-import { z } from "zod";
+import {useDB} from "~/lib/DBContext";
+import {z} from "zod";
 import {
     albumSchema,
     songSchema,
@@ -47,7 +47,7 @@ const CreateMusicEntityPage: React.FC = () => {
     const [entityType, setEntityType] = useState<ReferenceType>("song");
     const [result, setResult] = useState<ReactNode>(null);
     const [error, setError] = useState<string | null>(null);
-    const { currentDb } = useDB();
+    const {currentDb} = useDB();
 
     const [albumOptions, setAlbumOptions] = useState<Reference[]>([]);
     const [composerArtistOptions, setComposerArtistOptions] = useState<Reference[]>([]);
@@ -58,8 +58,8 @@ const CreateMusicEntityPage: React.FC = () => {
     const [activeModal, setActiveModal] = useState<Exclude<ReferenceType, "song"> | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        const {name, value} = e.target;
+        setFormData((prev) => ({...prev, [name]: value}));
     };
 
     const handleEntityTypeChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
@@ -81,7 +81,7 @@ const CreateMusicEntityPage: React.FC = () => {
                 }
             } catch (err) {
                 if (err instanceof Error)
-                setFunc([]);
+                    setFunc([]);
             }
         },
         [currentDb]
@@ -142,8 +142,8 @@ const CreateMusicEntityPage: React.FC = () => {
         try {
             const response = await fetch(`/api/add?db=${currentDb}`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ entityType, ...formData }),
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({entityType, ...formData}),
             });
             if (!response.ok) {
                 const errData = await response.json();
@@ -218,8 +218,8 @@ const CreateMusicEntityPage: React.FC = () => {
         const [modalError, setModalError] = useState<string | null>(null);
 
         const handleModalChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
-            const { name, value } = e.target;
-            setModalFormData((prev) => ({ ...prev, [name]: value }));
+            const {name, value} = e.target;
+            setModalFormData((prev) => ({...prev, [name]: value}));
         };
 
         const resetModalFormData = (): void => {
@@ -232,8 +232,8 @@ const CreateMusicEntityPage: React.FC = () => {
             try {
                 const response = await fetch(`/api/add?db=${db}`, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ entityType: type, ...modalFormData }),
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({entityType: type, ...modalFormData}),
                 });
                 if (!response.ok) {
                     const errData = await response.json();
@@ -325,7 +325,7 @@ const CreateMusicEntityPage: React.FC = () => {
                                     <button
                                         type="button"
                                         onClick={() => setActiveModal("productionCountry")}
-                                        className="mt-6 ml-2 bg-green-500 text-white px-2 py-1 rounded"
+                                        className="btn mt-6 ml-2 bg-green-500 text-white px-2 py-1 rounded"
                                     >
                                         Добавить
                                     </button>
@@ -446,178 +446,192 @@ const CreateMusicEntityPage: React.FC = () => {
                 {/* Форма для "song": название, дата релиза и выпадающие списки */}
                 {entityType === "song" && (
                     <>
-                        <div>
-                            <label htmlFor="title" className="block font-medium">
-                                Название песни:
-                            </label>
-                            <input
-                                type="text"
-                                id="title"
-                                name="title"
-                                value={formData.title || ""}
-                                onChange={handleChange}
-                                className="border rounded p-2 w-full"
-                                required
-                            />
+                        <div className="flex items-center">
+                            <div className="flex-1">
+                                <label htmlFor="title" className="block font-medium">
+                                    Название песни:
+                                </label>
+                                <input
+                                    type="text"
+                                    id="title"
+                                    name="title"
+                                    value={formData.title || ""}
+                                    onChange={handleChange}
+                                    className="border rounded p-2 w-full"
+                                    required
+                                />
+                            </div>
                         </div>
-                        <div>
-                            <label htmlFor="releaseDate" className="block font-medium">
-                                Дата релиза:
-                            </label>
-                            <input
-                                type="date"
-                                id="releaseDate"
-                                name="releaseDate"
-                                value={formData.releaseDate || ""}
-                                onChange={handleChange}
-                                className="border rounded p-2 w-full"
-                                required
-                            />
+                        <div className="flex items-center">
+                            <div className="flex-1">
+                                <label htmlFor="releaseDate" className="block font-medium">
+                                    Дата релиза:
+                                </label>
+                                <input
+                                    type="date"
+                                    id="releaseDate"
+                                    name="releaseDate"
+                                    value={formData.releaseDate || ""}
+                                    onChange={handleChange}
+                                    className="border rounded p-2 w-full"
+                                    required
+                                />
+                            </div>
                         </div>
                         <div className="flex items-center">
                             <div className="flex-1">
                                 <label htmlFor="albumId" className="block font-medium">
                                     Альбом:
                                 </label>
-                                <select
-                                    id="albumId"
-                                    name="albumId"
-                                    value={formData.albumId || ""}
-                                    onChange={handleChange}
-                                    className="border rounded p-2 w-full"
-                                    required
-                                >
-                                    <option value="">Выберите альбом</option>
-                                    {albumOptions.map((option) => (
-                                        <option key={option.id} value={option.id}>
-                                            {option.name}
-                                        </option>
-                                    ))}
-                                </select>
+                                <div className="flex flex-row">
+                                    <select
+                                        id="albumId"
+                                        name="albumId"
+                                        value={formData.albumId || ""}
+                                        onChange={handleChange}
+                                        className="border rounded p-2 w-full"
+                                        required
+                                    >
+                                        <option value="">Выберите альбом</option>
+                                        {albumOptions.map((option) => (
+                                            <option key={option.id} value={option.id}>
+                                                {option.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <button
+                                        type="button"
+                                        onClick={() => setActiveModal("album")}
+                                        className="btn ml-2 bg-green-500 text-white px-2 py-1 rounded"
+                                    >
+                                        Добавить
+                                    </button>
+                                </div>
                             </div>
-                            <button
-                                type="button"
-                                onClick={() => setActiveModal("album")}
-                                className="mt-6 ml-2 bg-green-500 text-white px-2 py-1 rounded"
-                            >
-                                Добавить
-                            </button>
                         </div>
                         <div className="flex items-center">
                             <div className="flex-1">
                                 <label htmlFor="composerArtistId" className="block font-medium">
                                     Композитор/Исполнитель:
                                 </label>
-                                <select
-                                    id="composerArtistId"
-                                    name="composerArtistId"
-                                    value={formData.composerArtistId || ""}
-                                    onChange={handleChange}
-                                    className="border rounded p-2 w-full"
-                                    required
-                                >
-                                    <option value="">Выберите исполнителя</option>
-                                    {composerArtistOptions.map((option) => (
-                                        <option key={option.id} value={option.id}>
-                                            {option.name}
-                                        </option>
-                                    ))}
-                                </select>
+                                <div className="flex flex-row">
+                                    <select
+                                        id="composerArtistId"
+                                        name="composerArtistId"
+                                        value={formData.composerArtistId || ""}
+                                        onChange={handleChange}
+                                        className="border rounded p-2 w-full"
+                                        required
+                                    >
+                                        <option value="">Выберите исполнителя</option>
+                                        {composerArtistOptions.map((option) => (
+                                            <option key={option.id} value={option.id}>
+                                                {option.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <button
+                                        type="button"
+                                        onClick={() => setActiveModal("composerArtist")}
+                                        className="btn ml-2 bg-green-500 text-white px-2 py-1 rounded"
+                                    >
+                                        Добавить
+                                    </button>
+                                </div>
                             </div>
-                            <button
-                                type="button"
-                                onClick={() => setActiveModal("composerArtist")}
-                                className="mt-6 ml-2 bg-green-500 text-white px-2 py-1 rounded"
-                            >
-                                Добавить
-                            </button>
                         </div>
                         <div className="flex items-center">
                             <div className="flex-1">
                                 <label htmlFor="productionCountryId" className="block font-medium">
                                     Страна производства:
                                 </label>
-                                <select
-                                    id="productionCountryId"
-                                    name="productionCountryId"
-                                    value={formData.productionCountryId || ""}
-                                    onChange={handleChange}
-                                    className="border rounded p-2 w-full"
-                                    required
-                                >
-                                    <option value="">Выберите страну</option>
-                                    {productionCountryOptions.map((option) => (
-                                        <option key={option.id} value={option.id}>
-                                            {option.name}
-                                        </option>
-                                    ))}
-                                </select>
+                                <div className="flex flex-row">
+                                    <select
+                                        id="productionCountryId"
+                                        name="productionCountryId"
+                                        value={formData.productionCountryId || ""}
+                                        onChange={handleChange}
+                                        className="border rounded p-2 w-full"
+                                        required
+                                    >
+                                        <option value="">Выберите страну</option>
+                                        {productionCountryOptions.map((option) => (
+                                            <option key={option.id} value={option.id}>
+                                                {option.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <button
+                                        type="button"
+                                        onClick={() => setActiveModal("productionCountry")}
+                                        className="btn ml-2 bg-green-500 text-white px-2 py-1 rounded"
+                                    >
+                                        Добавить
+                                    </button>
+                                </div>
                             </div>
-                            <button
-                                type="button"
-                                onClick={() => setActiveModal("productionCountry")}
-                                className="mt-6 ml-2 bg-green-500 text-white px-2 py-1 rounded"
-                            >
-                                Добавить
-                            </button>
                         </div>
                         <div className="flex items-center">
                             <div className="flex-1">
                                 <label htmlFor="genreId" className="block font-medium">
                                     Жанр:
                                 </label>
-                                <select
-                                    id="genreId"
-                                    name="genreId"
-                                    value={formData.genreId || ""}
-                                    onChange={handleChange}
-                                    className="border rounded p-2 w-full"
-                                    required
-                                >
-                                    <option value="">Выберите жанр</option>
-                                    {genreOptions.map((option) => (
-                                        <option key={option.id} value={option.id}>
-                                            {option.name}
-                                        </option>
-                                    ))}
-                                </select>
+                                <div className="flex flex-row">
+                                    <select
+                                        id="genreId"
+                                        name="genreId"
+                                        value={formData.genreId || ""}
+                                        onChange={handleChange}
+                                        className="border rounded p-2 w-full"
+                                        required
+                                    >
+                                        <option value="">Выберите жанр</option>
+                                        {genreOptions.map((option) => (
+                                            <option key={option.id} value={option.id}>
+                                                {option.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <button
+                                        type="button"
+                                        onClick={() => setActiveModal("genre")}
+                                        className="btn ml-2 bg-green-500 text-white px-2 py-1 rounded"
+                                    >
+                                        Добавить
+                                    </button>
+                                </div>
                             </div>
-                            <button
-                                type="button"
-                                onClick={() => setActiveModal("genre")}
-                                className="ml-2 bg-green-500 text-white px-2 py-1 rounded"
-                            >
-                                Добавить
-                            </button>
                         </div>
                         <div className="flex items-center">
                             <div className="flex-1">
                                 <label htmlFor="concertHallId" className="block font-medium">
                                     Концертный зал:
                                 </label>
-                                <select
-                                    id="concertHallId"
-                                    name="concertHallId"
-                                    value={formData.concertHallId || ""}
-                                    onChange={handleChange}
-                                    className="border rounded p-2 w-full"
-                                    required
-                                >
-                                    <option value="">Выберите зал</option>
-                                    {concertHallOptions.map((option) => (
-                                        <option key={option.id} value={option.id}>
-                                            {option.name}
-                                        </option>
-                                    ))}
-                                </select>
+                                <div className="flex flex-row">
+                                    <select
+                                        id="concertHallId"
+                                        name="concertHallId"
+                                        value={formData.concertHallId || ""}
+                                        onChange={handleChange}
+                                        className="border rounded p-2 w-full"
+                                        required
+                                    >
+                                        <option value="">Выберите зал</option>
+                                        {concertHallOptions.map((option) => (
+                                            <option key={option.id} value={option.id}>
+                                                {option.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <button
+                                        type="button"
+                                        onClick={() => setActiveModal("concertHall")}
+                                        className="btn ml-2 bg-green-500 text-white px-2 py-1 rounded"
+                                    >
+                                        Добавить
+                                    </button>
+                                </div>
                             </div>
-                            <button
-                                type="button"
-                                onClick={() => setActiveModal("concertHall")}
-                                className="ml-2 bg-green-500 text-white px-2 py-1 rounded"
-                            >
-                                Добавить
-                            </button>
                         </div>
                     </>
                 )}
@@ -657,29 +671,31 @@ const CreateMusicEntityPage: React.FC = () => {
                                 <label htmlFor="country_id" className="block font-medium">
                                     Страна:
                                 </label>
-                                <select
-                                    id="country_id"
-                                    name="country_id"
-                                    value={formData.country_id || ""}
-                                    onChange={handleChange}
-                                    className="border rounded p-2 w-full"
-                                    required
-                                >
-                                    <option value="">Выберите страну</option>
-                                    {productionCountryOptions.map((option) => (
-                                        <option key={option.id} value={option.id}>
-                                            {option.name}
-                                        </option>
-                                    ))}
-                                </select>
+                                <div className="flex flex-row">
+                                    <select
+                                        id="country_id"
+                                        name="country_id"
+                                        value={formData.country_id || ""}
+                                        onChange={handleChange}
+                                        className="border rounded p-2 w-full"
+                                        required
+                                    >
+                                        <option value="">Выберите страну</option>
+                                        {productionCountryOptions.map((option) => (
+                                            <option key={option.id} value={option.id}>
+                                                {option.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <button
+                                        type="button"
+                                        onClick={() => setActiveModal("productionCountry")}
+                                        className="btn ml-2 bg-green-500 text-white px-2 py-1 rounded"
+                                    >
+                                        Добавить
+                                    </button>
+                                </div>
                             </div>
-                            <button
-                                type="button"
-                                onClick={() => setActiveModal("productionCountry")}
-                                className="mt-6 ml-2 bg-green-500 text-white px-2 py-1 rounded"
-                            >
-                                Добавить
-                            </button>
                         </div>
                     </>
                 )}
